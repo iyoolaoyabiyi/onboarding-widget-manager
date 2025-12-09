@@ -14,7 +14,7 @@ export default function MetricsGrid({ metrics }: Props) {
   }
 
   return (
-    <section className="grid gap-4 md:grid-cols-3">
+    <section className="grid gap-4 md:grid-cols-3 w-full">
       {metrics.map((metric) => (
         <div
           key={metric.label}
