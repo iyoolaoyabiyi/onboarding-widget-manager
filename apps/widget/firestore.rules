@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Tours collection - read-only for widget (created via dashboard)
+    match /tours/{tourId} {
+      allow read: if true;
+      allow write: if false; // Only dashboard should create tours
+      
+      // Sessions subcollection - widget needs write access for new sessions
+      match /sessions/{sessionId} {
+        allow read: if true;
+        allow create: if true; // Widget can create new sessions
+        allow update: if true; // Widget can update session status
+        
+        // Events subcollection - widget needs write access for analytics
+        match /events/{eventId} {
+          allow read: if true;
+          allow create: if true; // Widget can track analytics events
+        }
+      }
+    }
+    
+    // Legacy analytics collection (if still in use)
+    match /analytics/{eventId} {
+      allow read: if true;
+      allow create: if true;
+    }
+  }
+}

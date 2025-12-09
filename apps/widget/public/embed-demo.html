@@ -234,7 +234,7 @@
     </section>
   </main>
 
-  <!-- Built widget bundle fetches tour JSON by data-tour-id (see mock-tour.json) -->
-  <script src="/onboarding-tour.umd.js" data-tour-id="tour_12345"></script>
+  <!-- Development: load widget as an ES module so the dev server serves it correctly -->
+  <script type="module" src="/src/index.ts" data-tour-id="tour_12345"></script>
 </body>
 </html>

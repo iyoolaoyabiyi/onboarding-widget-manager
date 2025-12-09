@@ -76,7 +76,7 @@ pnpm run lint
 - `src/` - React components and logic
 - `public/` - Static assets
   - `embed-demo.html` - Demo HTML for testing widget embedding
-  - `mock-tour.json` - Sample tour configuration
+
 - `dist/` - Built output (generated)
 
 ## Usage

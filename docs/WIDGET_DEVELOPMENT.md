@@ -1,5 +1,7 @@
 # Development Guide
 
+> Canonical stack choices: Firebase Auth for authentication and Firestore for tours + analytics storage. Widget bundle name: `ota-widget`. Animations use GSAP; optional minimal Three.js avatar can be toggled via `avatar_enabled` in tour config.
+
 ## Local Development Setup
 
 ### Prerequisites
@@ -23,9 +25,9 @@ cd onboarding-widget
 # Install dependencies for all workspaces
 pnpm install
 
-# Install dependencies for specific app
-cd apps/widget && npm install
-cd ../web && npm install
+# (Optional) install per app if you only work on one surface
+pnpm install --filter widget
+pnpm install --filter web
 ```
 
 ## Running Development Servers
@@ -36,7 +38,7 @@ cd ../web && npm install
 cd apps/widget
 
 # Start Vite dev server (http://localhost:5174)
-npm run dev
+pnpm dev
 
 # In another terminal, view the demo page:
 # Open http://localhost:5174/public/demo.html
@@ -48,7 +50,7 @@ npm run dev
 cd apps/web
 
 # Start Next.js dev server (http://localhost:3000)
-npm run dev
+pnpm dev
 
 # Open http://localhost:3000 in browser
 ```
@@ -57,10 +59,10 @@ npm run dev
 
 ```bash
 # Terminal 1: Widget
-cd apps/widget && npm run dev
+cd apps/widget && pnpm dev
 
 # Terminal 2: Dashboard
-cd apps/web && npm run dev
+cd apps/web && pnpm dev
 ```
 
 ## Building
@@ -69,18 +71,18 @@ cd apps/web && npm run dev
 
 ```bash
 cd apps/widget
-npm run build
+pnpm build
 
-# Output: dist/onboarding-tour.umd.js
+# Output: dist/ota-widget.js
 # Size check
-ls -lh dist/onboarding-tour.umd.js
+ls -lh dist/ota-widget*
 ```
 
 ### Build Dashboard Only
 
 ```bash
 cd apps/web
-npm run build
+pnpm build
 
 # Output: .next/ directory
 ```
@@ -98,13 +100,14 @@ pnpm run build
 
 1. **Build the widget**:
    ```bash
-   cd apps/widget && npm run build
+   cd apps/widget && pnpm build
    ```
 
 2. **Test in demo page**:
    - Open http://localhost:5174/public/demo.html
    - Click "Start Tour"
-   - Test all navigation buttons
+   - Test all navigation buttons and confirm widget animations run smoothly (GSAP/Framer or equivalent)
+   - Ensure tours contain at least 5 steps; the widget will reject configs with fewer
    - Open DevTools console to see analytics events
 
 3. **Test in embed demo**:
@@ -118,7 +121,7 @@ pnpm run build
    <body>
      <div id="test-element">Test Element</div>
      
-     <script src="http://localhost:5174/dist/onboarding-tour.umd.js" data-tour-id="tour_demo_001"></script>
+   <script src="http://localhost:5174/dist/ota-widget.js" data-tour-id="tour_demo_001"></script>
      
      <script>
        // Or manually init
@@ -221,8 +224,8 @@ localStorage.getItem('analytics');
 
 #### Analytics not tracking
 - Check DevTools Console for "Analytics Event Fired" logs
-- Verify endpoint is configured (if using backend)
-- Check localStorage: `localStorage.getItem('analytics')`
+- Verify Firestore config and rules allow writes to `analytics`
+- Check localStorage fallback: `localStorage.getItem('analytics')`
 
 #### Styles not applying
 - Check for `onboarding-tour-styles` in document head
@@ -251,7 +254,7 @@ git push origin feature/widget-improvements
 
 ```bash
 cd apps/widget
-npm run build  # Also runs tsc -b
+pnpm build  # Also runs tsc -b
 
 # Or just check types
 npx tsc --noEmit
@@ -271,11 +274,11 @@ npx tsc --noEmit
 cd apps/widget
 
 # Build and check
-npm run build
+pnpm build
 ls -lh dist/
 
 # Analyze dependencies
-npx webpack-bundle-analyzer dist/onboarding-tour.umd.js
+npx webpack-bundle-analyzer dist/ota-widget.js
 ```
 
 ### Runtime Performance
@@ -293,7 +296,7 @@ Styles are injected via `styleManager.ts`. To update:
 
 1. Edit `STYLE_ID` constant in `constants.ts` if needed
 2. Update CSS in `styleManager.ts#generateStyles()`
-3. Rebuild: `npm run build`
+3. Rebuild: `pnpm build`
 
 ### Dashboard Styles
 
@@ -309,17 +312,19 @@ In `configLoader.ts`:
 // Replace this:
 const response = await fetch('/mock-tour.json');
 
-// With your API:
+// With Firebase-hosted API or direct Firestore access:
 const response = await fetch(`https://api.example.com/tours/${tourId}`);
+
+// If using Firestore directly in the widget, load via Firebase SDK with security rules scoped to the tour's base_url.
 ```
 
 ### Send Analytics
 
-In `analytics.ts`, update `sendEvent()` to post to your backend:
+In `analytics.ts`, update `sendEvent()` to post to Firestore (current default) or your backend:
 
 ```typescript
-// Configure endpoint
-Analytics.setEndpoint('https://api.example.com/analytics');
+// Configure Firestore collection/endpoint
+Analytics.setEndpoint('firestore:analytics');
 ```
 
 ## Deployment
@@ -377,7 +382,7 @@ kill -9 <PID>
 # Clean and rebuild
 cd apps/widget
 rm -rf dist/ node_modules/.vite
-npm run build
+pnpm build
 ```
 
 ## Resources

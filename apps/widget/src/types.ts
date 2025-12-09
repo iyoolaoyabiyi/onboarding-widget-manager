@@ -21,12 +21,14 @@ export interface TourConfig {
   owner_id?: string;
   base_url?: string;
   created_at?: string;
+  avatar_enabled?: boolean;
 }
 
 export type AnalyticsAction = 'started' | 'completed' | 'skipped' | 'tour_finished';
 
 export interface AnalyticsEvent {
   tour_id: string;
+  session_id: string;
   step_id?: string;
   action: AnalyticsAction;
   timestamp: string;

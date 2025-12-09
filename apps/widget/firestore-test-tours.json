@@ -1,0 +1,154 @@
+{
+  "tours": [
+    {
+      "id": "tour_12345",
+      "name": "New User Onboarding",
+      "theme_color": "#3498db",
+      "owner_id": "user_demo",
+      "base_url": "http://localhost",
+      "created_at": "2024-12-09T12:00:00Z",
+      "steps": [
+        {
+          "id": "step_01",
+          "order": 1,
+          "target_element": "#signup-btn",
+          "title": "Start here",
+          "content": "Click to create your first tour.",
+          "position": "bottom"
+        },
+        {
+          "id": "step_02",
+          "order": 2,
+          "target_element": "#dashboard-header",
+          "title": "Dashboard overview",
+          "content": "We anchor to headers as well.",
+          "position": "right"
+        },
+        {
+          "id": "step_03",
+          "order": 3,
+          "target_element": "#stat-activation",
+          "title": "Metrics",
+          "content": "Explain why each card matters.",
+          "position": "top"
+        },
+        {
+          "id": "step_04",
+          "order": 4,
+          "target_element": "#analytics-card",
+          "title": "Analytics block",
+          "content": "Shows events we will later collect.",
+          "position": "left"
+        },
+        {
+          "id": "step_05",
+          "order": 5,
+          "target_element": "#support-card",
+          "title": "Help entry",
+          "content": "Link your docs or chat widget. This is the last step!",
+          "position": "top"
+        }
+      ]
+    },
+    {
+      "id": "tour_feature_intro",
+      "name": "Feature Introduction Tour",
+      "theme_color": "#27ae60",
+      "owner_id": "user_demo",
+      "base_url": "https://example.com/features",
+      "created_at": "2024-12-09T12:30:00Z",
+      "steps": [
+        {
+          "id": "step_f1",
+          "order": 1,
+          "target_element": "#feature-btn",
+          "title": "Welcome to Features",
+          "content": "Discover all the powerful tools available.",
+          "position": "bottom"
+        },
+        {
+          "id": "step_f2",
+          "order": 2,
+          "target_element": "#export-btn",
+          "title": "Export Your Data",
+          "content": "Download your tours in multiple formats.",
+          "position": "left"
+        },
+        {
+          "id": "step_f3",
+          "order": 3,
+          "target_element": "#settings-menu",
+          "title": "Customize Settings",
+          "content": "Tailor the widget to match your brand.",
+          "position": "right"
+        },
+        {
+          "id": "step_f4",
+          "order": 4,
+          "target_element": "#analytics-tab",
+          "title": "Track Analytics",
+          "content": "Monitor user engagement and drop-off points.",
+          "position": "top"
+        },
+        {
+          "id": "step_f5",
+          "order": 5,
+          "target_element": "#save-btn",
+          "title": "Save & Deploy",
+          "content": "Save your tour and deploy it instantly!",
+          "position": "bottom"
+        }
+      ]
+    },
+    {
+      "id": "tour_custom_template",
+      "name": "Custom Template Tour",
+      "theme_color": "#e74c3c",
+      "owner_id": "user_demo",
+      "base_url": "https://custom.example.com",
+      "created_at": "2024-12-09T13:00:00Z",
+      "steps": [
+        {
+          "id": "step_c1",
+          "order": 1,
+          "target_element": "#template-selector",
+          "title": "Choose a Template",
+          "content": "Start with a pre-built template or create from scratch.",
+          "position": "right"
+        },
+        {
+          "id": "step_c2",
+          "order": 2,
+          "target_element": "#editor-canvas",
+          "title": "Edit Your Tour",
+          "content": "Drag and drop elements to customize your tour.",
+          "position": "top"
+        },
+        {
+          "id": "step_c3",
+          "order": 3,
+          "target_element": "#preview-btn",
+          "title": "Preview Your Work",
+          "content": "See how your tour looks on actual users' screens.",
+          "position": "left"
+        },
+        {
+          "id": "step_c4",
+          "order": 4,
+          "target_element": "#publish-btn",
+          "title": "Publish to Production",
+          "content": "Make your tour live for all your users.",
+          "position": "bottom"
+        },
+        {
+          "id": "step_c5",
+          "order": 5,
+          "target_element": "#metrics-panel",
+          "title": "Review Metrics",
+          "content": "See completion rates and user interactions.",
+          "position": "right"
+        }
+      ]
+    }
+  ]
+}

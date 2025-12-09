@@ -9,6 +9,7 @@ export const DEFAULT_TOUR_CONFIG: TourConfig = {
   id: 'tour_12345',
   name: 'New User Onboarding',
   theme_color: '#3498db',
+  avatar_enabled: false,
   steps: [
     {
       id: 'step_01',

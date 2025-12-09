@@ -1,4 +1,6 @@
 import type { AnalyticsEvent, AnalyticsAction } from './types';
+import { getFirestoreClient } from './firebaseClient';
+import { collection, addDoc, doc } from 'firebase/firestore';
 
 /**
  * Handles analytics event tracking
@@ -6,9 +8,15 @@ import type { AnalyticsEvent, AnalyticsAction } from './types';
 export class Analytics {
   private static events: AnalyticsEvent[] = [];
   private static uploadEndpoint: string | null = null;
+  private static firestoreDb = getFirestoreClient();
+  private static sessionId: string | null = null;
 
   static setEndpoint(endpoint: string): void {
     this.uploadEndpoint = endpoint;
+  }
+
+  static setSessionId(sessionId: string): void {
+    this.sessionId = sessionId;
   }
 
   static track(
@@ -16,11 +24,17 @@ export class Analytics {
     tourId: string,
     stepId?: string
   ): void {
+    if (!this.sessionId) {
+      console.warn('Session ID not set. Analytics event not tracked.');
+      return;
+    }
+
     const event: AnalyticsEvent = {
       tour_id: tourId,
-      step_id: stepId,
+      session_id: this.sessionId,
       action,
       timestamp: new Date().toISOString(),
+      ...(stepId !== undefined ? { step_id: stepId } : {}),
     };
 
     this.events.push(event);
@@ -31,6 +45,20 @@ export class Analytics {
       this.sendEvent(event).catch((error) => {
         console.warn('Failed to send analytics event:', error);
       });
+    }
+
+    // If Firestore is available, write analytics to session subcollection
+    if (this.firestoreDb) {
+      try {
+        const docRef = doc(this.firestoreDb, 'tours', tourId, 'sessions', this.sessionId);
+        const colRef = collection(docRef, 'events');
+        // fire-and-forget, do not block the main flow
+        addDoc(colRef, event).catch((err) => {
+          console.warn('Failed to write analytics event to Firestore:', err);
+        });
+      } catch (err) {
+        console.warn('Analytics Firestore write failed:', err);
+      }
     }
   }
 

@@ -1,27 +1,40 @@
 import type { TourConfig } from './types';
 import { DEFAULT_TOUR_CONFIG } from './constants';
+import { getFirestoreClient } from './firebaseClient';
+import { doc, getDoc } from 'firebase/firestore';
 
 export class ConfigLoader {
   static async loadTourConfig(tourId: string): Promise<TourConfig> {
+    // 1) Try Firestore if configured
     try {
-      // Try to fetch from the public directory first (for development/demo)
-      const response = await fetch('/mock-tour.json', { cache: 'no-cache' });
-      if (response.ok) {
-        const config = (await response.json()) as TourConfig;
-        console.log(`Loaded tour config: ${config.name || config.id}`);
-        return config;
+      const db = getFirestoreClient();
+      if (db && tourId) {
+        try {
+          const docRef = doc(db, 'tours', tourId);
+          const snap = await getDoc(docRef);
+          if (snap.exists()) {
+            const data = snap.data() as TourConfig;
+            console.log(`Loaded tour config from Firestore: ${data.name || data.id}`);
+            return data;
+          } else {
+            console.warn(`No tour found in Firestore for id: ${tourId}`);
+          }
+        } catch (error) {
+          console.warn('Failed to fetch tour from Firestore:', error);
+        }
       }
-    } catch (error) {
-      console.warn('Failed to fetch tour config from mock file:', error);
+    } catch (err) {
+      console.warn('Firestore attempt failed:', err);
     }
 
-    // Fall back to default configuration
+    // 2) Fall back to default configuration
     console.warn(`Using default tour config. Could not load tour: ${tourId}`);
     return DEFAULT_TOUR_CONFIG;
   }
 
   static getTourIdFromScript(): string | null {
-    const scriptTag = document.querySelector('script[src*="onboarding-tour"]');
+    // Support generic embed snippet: <script src=".../widget.js" data-tour-id="tour_888"></script>
+    const scriptTag = document.querySelector('script[data-tour-id]');
     if (scriptTag) {
       return scriptTag.getAttribute('data-tour-id');
     }
@@ -35,7 +48,8 @@ export class ConfigLoader {
     }
 
     if (config.steps.length < 5) {
-      console.warn(`Tour only has ${config.steps.length} steps. Minimum recommended is 5.`);
+      console.error(`Tour has ${config.steps.length} steps. Minimum required is 5.`);
+      return false;
     }
 
     return true;
