@@ -6,23 +6,23 @@ Monorepo for a guided onboarding product with:
 
 ## Prerequisites
 - Node.js 18+ (`nvm install 20 && nvm use 20`)
-- npm (workspaces enabled)
+- pnpm (workspaces enabled)
 
 ## Getting Started
 ```bash
-npm install             # installs workspaces
-npm run dev:web         # start Next.js
-npm run dev:widget      # start Vite widget
+pnpm install            # installs workspaces
+pnpm run dev:web        # start Next.js
+pnpm run dev:widget     # start Vite widget
 ```
 
 ## Production Builds
 ```bash
-npm run build           # builds both apps
+pnpm run build          # builds both apps
 ```
 
 ## Linting
 ```bash
-npm run lint            # lints both apps
+pnpm run lint           # lints both apps
 ```
 
 ## Notes
