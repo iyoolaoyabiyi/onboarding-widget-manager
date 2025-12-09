@@ -1,5 +1,5 @@
-import type { TourStep, TooltipPosition } from './types';
-import { TOOLTIP_PADDING } from './constants';
+import type { TourStep, TooltipPosition } from '../../types/types';
+import { TOOLTIP_PADDING } from '../../config/constants';
 
 /**
  * Handles positioning of the tooltip relative to highlighted elements

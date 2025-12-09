@@ -1,5 +1,5 @@
-import type { AnalyticsEvent, AnalyticsAction } from './types';
-import { getFirestoreClient } from './firebaseClient';
+import type { AnalyticsEvent, AnalyticsAction } from '../types/types';
+import { getFirestoreClient } from '../services/firebaseClient';
 import { collection, addDoc, doc } from 'firebase/firestore';
 
 /**

@@ -1,7 +1,7 @@
-import type { TourConfig, TourStep } from './types';
-import { HIGHLIGHT_CLASS } from './constants';
-import { TooltipManager, TooltipPositioner } from './tooltip';
-import { Analytics } from './analytics';
+import type { TourConfig, TourStep } from '../types/types';
+import { HIGHLIGHT_CLASS } from '../config/constants';
+import { TooltipManager, TooltipPositioner } from '../ui/tooltip/tooltip';
+import { Analytics } from '../analytics/analytics';
 import { gsap } from 'gsap';
 
 /**

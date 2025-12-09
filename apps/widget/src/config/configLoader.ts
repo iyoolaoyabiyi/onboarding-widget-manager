@@ -1,6 +1,6 @@
-import type { TourConfig } from './types';
+import type { TourConfig } from '../types/types';
 import { DEFAULT_TOUR_CONFIG } from './constants';
-import { getFirestoreClient } from './firebaseClient';
+import { getFirestoreClient } from '../services/firebaseClient';
 import { doc, getDoc } from 'firebase/firestore';
 
 export class ConfigLoader {

@@ -1,4 +1,4 @@
-import type { TourConfig } from './types';
+import type { TourConfig } from '../types/types';
 
 export const STYLE_ID = 'onboarding-tour-styles';
 export const TOOLTIP_CLASS = 'onboarding-tour-tooltip';

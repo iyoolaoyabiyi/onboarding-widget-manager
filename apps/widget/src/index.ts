@@ -1,5 +1,5 @@
-import { TourManager } from './tourManager';
-import type { TourConfig, TourStep } from './types';
+import { TourManager } from './core/tourManager';
+import type { TourConfig, TourStep } from './types/types';
 
 // Auto-initialize on DOM ready if data-tour-id is present
 document.addEventListener('DOMContentLoaded', () => {

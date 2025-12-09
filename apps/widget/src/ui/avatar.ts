@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { HIGHEST_Z_INDEX } from './constants';
+import { HIGHEST_Z_INDEX } from '../config/constants';
 
 /**
  * Optional Three.js avatar: lightweight floating sphere in bottom-right corner.

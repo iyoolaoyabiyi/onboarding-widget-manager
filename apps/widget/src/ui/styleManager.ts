@@ -1,4 +1,4 @@
-import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX } from './constants';
+import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX } from '../config/constants';
 
 /**
  * Manages all CSS styles for the tour overlay and tooltip

@@ -1,10 +1,10 @@
-import type { TourConfig } from './types';
-import { StyleManager } from './styleManager';
-import { ConfigLoader } from './configLoader';
+import type { TourConfig } from '../types/types';
+import { StyleManager } from '../ui/styleManager';
+import { ConfigLoader } from '../config/configLoader';
 import { TourRenderer } from './tourRenderer';
-import { AvatarAssistant } from './avatar';
-import { Analytics } from './analytics';
-import { getFirestoreClient } from './firebaseClient';
+import { AvatarAssistant } from '../ui/avatar';
+import { Analytics } from '../analytics/analytics';
+import { getFirestoreClient } from '../services/firebaseClient';
 import { doc, setDoc } from 'firebase/firestore';
 
 /**
