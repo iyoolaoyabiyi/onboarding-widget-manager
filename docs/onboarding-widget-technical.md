@@ -44,18 +44,18 @@
 
 ## **Functional Requirements**
 
-- **FR-01 (Auth):** Users must be able to sign up, log in, and log out using (e.g., Clerk/Supabase).
+- **FR-01 (Auth):** Users must be able to sign up, log in, and log out using Firebase Auth.
 - **FR-02 (Tour Creation):** Logged-in users can create a tour entity containing at least 5 steps.
 - **FR-03 (Script Gen):** The system must generate a unique JavaScript snippet containing the specific `tour_id`.
 - **FR-04 (Embedding):** The external widget must fetch tour data using the `tour_id` from the script tag.
 - **FR-05 (Highlighting):** The widget must identify HTML elements by ID on the host page and overlay a tooltip/highlight.
 - **FR-06 (Persistence):** Tour progress (current step) must be saved; if a user reloads, they can resume.
-- **FR-07 (Analytics):** Every "Next", "Back", or "Skip" click must trigger a database write to the analytics table.
+- **FR-07 (Analytics):** Every "Next", "Back", or "Skip" click must trigger a Firestore write to the `analytics` collection.
 
 ## **Non-Functional Requirements**
 
 - **NFR-01 (Performance):** The embeddable script bundle size should be minimized (target <50kb) using Vite.
-- **NFR-02 (Animation):** UI transitions must use GSAP or Framer Motion without layout thrashing.
+- **NFR-02 (Animation):** UI transitions must use GSAP or Framer Motion without layout thrashing (applies to the embeddable widget and marketing surfaces).
 - **NFR-03 (Compatibility):** The widget must work when embedded on a plain HTML page or a React app.
 
 ## **User Flows & User Stories**
@@ -70,7 +70,7 @@
     - **Step 1:** Types Target ID (`#nav-home`), Title, and Description.
     - **Step 2-5:** Repeats for subsequent steps.
 4. **Save:** Clicks "Save". Database updates.
-5. **Deploy:** User clicks "Get Code". System displays: `<script src="https://our-app.vercel.app/widget.js" data-tour-id="tour_123"></script>`
+5. **Deploy:** User clicks "Get Code". System displays: `<script src="https://our-app.vercel.app/ota-widget.js" data-tour-id="tour_123"></script>`
 
 ### **Flow B: The End User (Embed Team)**
 

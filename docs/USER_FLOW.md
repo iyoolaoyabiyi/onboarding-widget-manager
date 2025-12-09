@@ -14,7 +14,7 @@
 2. **Authentication**
 
    * Clicking the CTA redirects the user to `/sign-up`.
-   * They register via email/password or Google (Firebase).
+   * They register via email/password or Google (Firebase Auth).
    * Successful authentication redirects them to the **Dashboard**.
 
 ---
@@ -56,11 +56,11 @@
 
    * User clicks **Get Embed Code**.
 
-   * The system produces a script snippet:
+    * The system produces a script snippet:
 
-     ```html
-     <script src="https://your-app.vercel.app/widget.js" data-tour-id="tour_888"></script>
-     ```
+       ```html
+       <script src="https://your-app.vercel.app/ota-widget.js" data-tour-id="tour_888"></script>
+       ```
 
    * User pastes this into their application’s HTML.
 
@@ -83,7 +83,7 @@
 
 8. **Interaction**
 
-   * On **Next**, the highlight animates to the next target element.
+   * On **Next**, the highlight animates to the next target element
    * Each step sends analytics events to Firestore (`analytics` collection), for example:
 
      ```json
