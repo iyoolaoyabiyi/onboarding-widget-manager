@@ -177,7 +177,8 @@ function createTooltip(): HTMLDivElement {
 
 // UTILITIES
 function getTourId(): string | null {
-  const scriptTag = document.querySelector('script[src*="onboarding-tour"]');
+  // Look for any script tag that contains a data-tour-id attribute (embed snippet)
+  const scriptTag = document.querySelector('script[data-tour-id]');
   if (scriptTag) {
     return scriptTag.getAttribute('data-tour-id');
   }
@@ -186,24 +187,10 @@ function getTourId(): string | null {
 
 // DATABASE & ANALYTICS PLACEHOLDERS 
 async function fetchTourConfig(tourId: string): Promise<TourConfig> {
-  // TODO: REPLACE THIS WITH REAL DB FETCH
-  // Example: Use Firebase client to fetch tour data by ID
-  try {
-    // const response = await firebase.firestore().collection('tours').doc(tourId).get();
-    // return response.data() as TourConfig;
-    
-    // Using static JSON fetch as a stepping stone
-    const response = await fetch('/mock-tour.json', { cache: 'no-cache' });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch tour config (${response.status})`);
-    }
-    console.log(tourId);
-    
-    return (await response.json()) as TourConfig;
-  } catch (error) {
-    console.warn('Falling back to default tour config due to fetch error:', error);
-    return DEFAULT_TOUR_CONFIG;
-  }
+  // Firebase Firestore is wired in via firebaseClient + configLoader
+  // This fallback is kept for backwards compatibility but should not be called directly
+  console.warn(`Using default tour config. Could not load tour: ${tourId}`);
+  return DEFAULT_TOUR_CONFIG;
 }
 
 type AnalyticsAction = 'started' | 'completed' | 'skipped' | 'tour_finished';

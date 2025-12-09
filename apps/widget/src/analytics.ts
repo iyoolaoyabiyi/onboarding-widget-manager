@@ -1,4 +1,6 @@
 import type { AnalyticsEvent, AnalyticsAction } from './types';
+import { getFirestoreClient } from './firebaseClient';
+import { collection, addDoc } from 'firebase/firestore';
 
 /**
  * Handles analytics event tracking
@@ -6,6 +8,7 @@ import type { AnalyticsEvent, AnalyticsAction } from './types';
 export class Analytics {
   private static events: AnalyticsEvent[] = [];
   private static uploadEndpoint: string | null = null;
+  private static firestoreDb = getFirestoreClient();
 
   static setEndpoint(endpoint: string): void {
     this.uploadEndpoint = endpoint;
@@ -31,6 +34,19 @@ export class Analytics {
       this.sendEvent(event).catch((error) => {
         console.warn('Failed to send analytics event:', error);
       });
+    }
+
+    // If Firestore is available, write analytics to `analytics` collection
+    if (this.firestoreDb) {
+      try {
+        const colRef = collection(this.firestoreDb, 'analytics');
+        // fire-and-forget, do not block the main flow
+        addDoc(colRef, event).catch((err) => {
+          console.warn('Failed to write analytics event to Firestore:', err);
+        });
+      } catch (err) {
+        console.warn('Analytics Firestore write failed:', err);
+      }
     }
   }
 
