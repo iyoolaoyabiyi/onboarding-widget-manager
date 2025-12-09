@@ -4,51 +4,67 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { ArrowRight, Code, Play, Zap } from "lucide-react";
+import React from "react";
 
 export default function Hero() {
   const { user, loading } = useAuth();
 
+  // -------------------- TYPING ANIMATION --------------------
+  const fullCode = `// Initialize tour in seconds
+Tour.init({
+  steps: [
+    { target: '#hero', content: 'Welcome!' },
+    { target: '.features', content: 'Discover features' },
+    { target: '#cta', content: 'Get started now' }
+  ]
+});`;
+
+  const [displayed, setDisplayed] = React.useState("");
+  const [showCursor, setShowCursor] = React.useState(true);
+
+  React.useEffect(() => {
+    let index = 0;
+
+    function typeChar() {
+      if (index <= fullCode.length) {
+        setDisplayed(fullCode.slice(0, index));
+        index++;
+
+        // random typing delay: 20–120ms
+        const randomDelay = Math.floor(Math.random() * 80) + 40;
+        setTimeout(typeChar, randomDelay);
+      }
+    }
+
+    typeChar();
+
+    // blinking cursor
+    const cursorInterval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+
+    return () => clearInterval(cursorInterval);
+  }, []);
+  // ----------------------------------------------------------
+
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
-      {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-20" />
-      
-      {/* Animated Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-40 -left-40 w-80 h-80 bg-linear-to-br from-blue-600/20 to-blue-400/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
+          animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         />
         <motion.div
           className="absolute -bottom-40 -right-40 w-80 h-80 bg-linear-to-br from-blue-500/20 to-blue-600/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear"
-          }}
+          animate={{ x: [0, -100, 0], y: [0, 50, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         />
         <motion.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-linear-to-br from-blue-700/10 to-blue-500/5 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
@@ -62,35 +78,14 @@ export default function Hero() {
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 2 + Math.random() * 2,
-              delay: i * 0.2,
-              repeat: Infinity,
-            }}
+            animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 2 + Math.random() * 2, delay: i * 0.2, repeat: Infinity }}
           />
         ))}
       </div>
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto text-center py-20">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-800 bg-gray-900/50 mb-8"
-        >
-          <Zap className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-medium text-gray-300">
-            v2.0 Now Available
-          </span>
-        </motion.div>
-
-        {/* Main Heading */}
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,7 +98,6 @@ export default function Hero() {
           </span>
         </motion.h1>
 
-        {/* Subheading */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -185,15 +179,12 @@ export default function Hero() {
               <div className="w-3 h-3 rounded-full bg-green-500" />
               <span className="text-sm text-gray-400 ml-auto">tour.js</span>
             </div>
+
             <pre className="text-sm text-gray-300 overflow-x-auto">
-              <code>{`// Initialize tour in seconds
-Tour.init({
-  steps: [
-    { target: '#hero', content: 'Welcome!' },
-    { target: '.features', content: 'Discover features' },
-    { target: '#cta', content: 'Get started now' }
-  ]
-});`}</code>
+              <code>
+                {displayed}
+                {showCursor ? "|" : " "}
+              </code>
             </pre>
           </div>
         </motion.div>

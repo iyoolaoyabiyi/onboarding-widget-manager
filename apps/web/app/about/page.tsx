@@ -5,7 +5,7 @@ import { Target, Rocket, TrendingUp, Users, Zap, Globe } from "lucide-react";
 
 export default function About() {
   return (
-    <div className="relative py-20 md:py-32 bg-gray-950 overflow-hidden">
+    <div className="relative py-20 md:py-32 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl" />
