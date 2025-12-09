@@ -4,16 +4,16 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/landing-page/Hero";
 import HowItWorks from "@/components/landing-page/HowItWorks";
 import Navbar from "@/components/Navbar";
+import TryDemo from "@/components/landing-page/TryDemo";
 
 export default function Home() {
   return (
     <div>
-      <Navbar />
       <Hero />
       <Features />
       <HowItWorks />
+      <TryDemo />
       <DocumentationPreview />
-      <Footer />
     </div>
   );
 }

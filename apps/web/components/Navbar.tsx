@@ -45,13 +45,9 @@ export default function Navbar() {
         </li>
       </ul>
 
-      {/* RIGHT SIDE AUTH BUTTONS */}
       <ul className="flex items-center gap-4">
-
-        {/* If still loading auth state, show nothing */}
         {!loading && (
           <>
-            {/* SHOW WHEN LOGGED OUT */}
             {!user && (
               <>
                 <li>
@@ -72,8 +68,7 @@ export default function Navbar() {
                 </li>
               </>
             )}
-
-            {/* SHOW WHEN LOGGED IN */}
+            
             {user && (
               <>
                 <li>
