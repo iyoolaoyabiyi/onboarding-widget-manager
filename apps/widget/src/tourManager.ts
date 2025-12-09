@@ -3,12 +3,16 @@ import { StyleManager } from './styleManager';
 import { ConfigLoader } from './configLoader';
 import { TourRenderer } from './tourRenderer';
 import { AvatarAssistant } from './avatar';
+import { Analytics } from './analytics';
+import { getFirestoreClient } from './firebaseClient';
+import { doc, setDoc } from 'firebase/firestore';
 
 /**
  * Main tour manager - orchestrates the entire tour flow
  */
 export class TourManager {
   private static renderer: TourRenderer | null = null;
+  private static sessionId: string | null = null;
 
   static async initialize(config?: TourConfig): Promise<void> {
     try {
@@ -35,6 +39,9 @@ export class TourManager {
         console.log(`Tour ${tourConfig.id} already completed. Skipping playback.`);
         return;
       }
+
+      // Load or create session
+      await this.initializeSession(tourConfig.id);
 
       // Load styles after we know the theme and that we need to run
       StyleManager.ensureStyles(tourConfig.theme_color);
@@ -113,8 +120,72 @@ export class TourManager {
   private static markCompleted(tourId: string): void {
     try {
       localStorage.setItem(this.completionKey(tourId), 'true');
+      this.clearSessionId(tourId);
     } catch (err) {
       console.warn('Unable to persist completion state:', err);
+    }
+  }
+
+  private static sessionStorageKey(tourId: string): string {
+    return `onboarding_tour_${tourId}_session`;
+  }
+
+  private static async initializeSession(tourId: string): Promise<void> {
+    // Check localStorage for existing session
+    const storedSessionId = this.getStoredSessionId(tourId);
+
+    if (storedSessionId) {
+      this.sessionId = storedSessionId;
+      Analytics.setSessionId(this.sessionId);
+      console.log(`Resumed session ${this.sessionId} for tour ${tourId}`);
+      return;
+    }
+
+    // Create new session
+    this.sessionId = this.generateSessionId();
+    Analytics.setSessionId(this.sessionId);
+
+    // Save session to localStorage
+    try {
+      localStorage.setItem(this.sessionStorageKey(tourId), this.sessionId);
+    } catch (err) {
+      console.warn('Unable to save session to localStorage:', err);
+    }
+
+    // Save session to Firestore
+    const db = getFirestoreClient();
+    if (db && this.sessionId) {
+      try {
+        const sessionRef = doc(db, 'tours', tourId, 'sessions', this.sessionId);
+        await setDoc(sessionRef, {
+          created_at: new Date().toISOString(),
+          status: 'active',
+        });
+        console.log(`Created session ${this.sessionId} for tour ${tourId}`);
+      } catch (err) {
+        console.warn('Unable to save session to Firestore:', err);
+      }
+    }
+  }
+
+  private static getStoredSessionId(tourId: string): string | null {
+    try {
+      return localStorage.getItem(this.sessionStorageKey(tourId));
+    } catch (err) {
+      console.warn('Unable to read session from localStorage:', err);
+      return null;
+    }
+  }
+
+  private static generateSessionId(): string {
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  private static clearSessionId(tourId: string): void {
+    try {
+      localStorage.removeItem(this.sessionStorageKey(tourId));
+    } catch (err) {
+      console.warn('Unable to clear session from localStorage:', err);
     }
   }
 }

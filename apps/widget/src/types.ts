@@ -28,6 +28,7 @@ export type AnalyticsAction = 'started' | 'completed' | 'skipped' | 'tour_finish
 
 export interface AnalyticsEvent {
   tour_id: string;
+  session_id: string;
   step_id?: string;
   action: AnalyticsAction;
   timestamp: string;

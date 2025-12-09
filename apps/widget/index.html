@@ -180,7 +180,7 @@
       </header>
 
       <div class="dashboard-grid">
-        <div class="card">
+        <div class="card" id="dashboard-info">
           <h3>Welcome to Your Dashboard</h3>
           <p>This demo showcases the onboarding widget in action. Click "Start Tour" to see how it highlights and guides users through key features.</p>
           <button id="signup-btn" class="btn-primary" style="margin-top: 12px;">Click Me - First Step</button>
@@ -228,14 +228,14 @@
         <button class="btn-danger" onclick="stopTour()">⏹ Stop Tour</button>
       </div>
 
-      <div class="info-box" style="margin-top: 20px;">
+      <div class="info-box" id="info-box" style="margin-top: 20px;">
         <strong>💡 Demo Information:</strong><br/>
         This page demonstrates the onboarding widget. The widget loads tour configuration from Firestore, highlights elements, shows guided tooltips, and tracks user interactions. Check the browser console for debug logs and analytics events.
       </div>
     </div>
 
     <!-- Include the widget script -->
-    <script src="/src/index.ts" type="module"></script>
+    <script type="module" src="/src/index.ts" data-tour-id="tour_custom_template"></script>
     <script>
       async function startTour() {
         if (window.OnboardingTour) {
