@@ -1,0 +1,58 @@
+{
+  "id": "tour_12345",
+  "owner_id": "user_888",
+  "name": "New User Onboarding",
+  "base_url": "",
+  "theme_color": "#0070f3",
+  "steps": [
+    {
+      "id": "step_01",
+      "order": 1,
+      "target_element": "#signup-btn",
+      "title": "Start here",
+      "content": "Click to create your first tour.",
+      "position": "bottom"
+    },
+    {
+      "id": "step_02",
+      "order": 2,
+      "target_element": "#dashboard-header",
+      "title": "Dashboard overview",
+      "content": "We anchor to headers as well.",
+      "position": "right"
+    },
+    {
+      "id": "step_03",
+      "order": 3,
+      "target_element": "#stat-activation",
+      "title": "Metrics",
+      "content": "Explain why each card matters.",
+      "position": "top"
+    },
+    {
+      "id": "step_04",
+      "order": 4,
+      "target_element": "#analytics-card",
+      "title": "Analytics block",
+      "content": "Shows events we will later collect.",
+      "position": "left"
+    },
+    {
+      "id": "step_05",
+      "order": 5,
+      "target_element": "#stat-retention",
+      "title": "Retention block",
+      "content": "Shows a unique feature we have.",
+      "position": "bottom"
+    },
+    {
+      "id": "step_06",
+      "order": 6,
+      "target_element": "#support-card",
+      "title": "Help entry",
+      "content": "Link your docs or chat widget.",
+      "position": "top"
+    }
+  ],
+  "created_at": "2025-12-08T10:00:00Z"
+}

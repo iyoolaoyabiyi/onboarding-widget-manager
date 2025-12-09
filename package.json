@@ -2,23 +2,20 @@
   "name": "my-onboarding-app",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "apps/web",
-    "apps/widget"
-  ],
   "scripts": {
-    "dev": "npm run dev:web",
-    "build": "npm run build:web && npm run build:widget",
-    "lint": "npm run lint:web && npm run lint:widget",
-    "dev:web": "npm run dev --workspace web",
-    "dev:widget": "npm run dev --workspace widget",
-    "build:web": "npm run build --workspace web",
-    "build:widget": "npm run build --workspace widget",
-    "lint:web": "npm run lint --workspace web",
-    "lint:widget": "npm run lint --workspace widget"
+    "dev": "pnpm run dev:web",
+    "build": "pnpm run build:web && pnpm run build:widget",
+    "lint": "pnpm run lint:web && pnpm run lint:widget",
+    "dev:web": "pnpm run dev --filter web",
+    "dev:widget": "pnpm run dev --filter widget",
+    "build:web": "pnpm run build --filter web",
+    "build:widget": "pnpm run build --filter widget",
+    "preview:widget": "pnpm run preview --filter widget",
+    "lint:web": "pnpm run lint --filter web",
+    "lint:widget": "pnpm run lint --filter widget"
   },
   "engines": {
     "node": ">=18.18.0"
   },
-  "packageManager": "npm@10.8.2"
+  "packageManager": "pnpm@8.0.0"
 }
