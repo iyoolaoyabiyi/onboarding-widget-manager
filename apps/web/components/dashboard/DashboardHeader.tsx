@@ -1,4 +1,8 @@
-export default function DashboardHeader() {
+type Props = {
+  onCreate: () => void;
+};
+
+export default function DashboardHeader({ onCreate }: Props) {
   return (
     <header className="flex flex-col gap-3">
       <div className="flex items-center gap-3 text-sm text-gray-300">
@@ -18,7 +22,10 @@ export default function DashboardHeader() {
         </p>
       </div>
       <div className="flex flex-wrap gap-3">
-        <button className="px-4 py-2 rounded-lg bg-white text-black font-semibold hover:opacity-90">
+        <button
+          className="px-4 py-2 rounded-lg bg-white text-black font-semibold hover:opacity-90"
+          onClick={onCreate}
+        >
           + Create New Tour
         </button>
         <button className="px-4 py-2 rounded-lg border border-white/20 text-white hover:bg-white/5">

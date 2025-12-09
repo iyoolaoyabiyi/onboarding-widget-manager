@@ -8,6 +8,8 @@ type Props = {
 };
 
 export default function AnalyticsSection({ views, completions, dropOff, recentEvents }: Props) {
+  const hasData = views > 0 || completions > 0 || dropOff.length > 0 || recentEvents.length > 0;
+
   return (
     <section className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -21,6 +23,14 @@ export default function AnalyticsSection({ views, completions, dropOff, recentEv
         </div>
       </div>
 
+      {!hasData && (
+        <div className="rounded-xl border border-dashed border-white/15 bg-black/20 p-4 text-sm text-gray-400">
+          No analytics yet. Data will appear after your first tour runs.
+        </div>
+      )}
+
+      {hasData && (
+        <>
       <div className="grid md:grid-cols-2 gap-4">
         <div className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-3">
           <div className="flex items-center justify-between text-sm text-gray-300">
@@ -71,9 +81,11 @@ export default function AnalyticsSection({ views, completions, dropOff, recentEv
             <div key={`${event.tour_id}-${event.step}-${event.action}`} className="rounded-lg border border-white/10 bg-white/5 p-3">
               {`{ "tour_id": "${event.tour_id}", "step": ${event.step}, "action": "${event.action}" }`}
             </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+        </>
+      )}
     </section>
   );
 }

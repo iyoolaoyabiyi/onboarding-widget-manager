@@ -5,6 +5,14 @@ type Props = {
 };
 
 export default function MetricsGrid({ metrics }: Props) {
+  if (!metrics.length) {
+    return (
+      <section className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-6 text-sm text-gray-400">
+        No analytics yet. Launch a tour to start collecting data.
+      </section>
+    );
+  }
+
   return (
     <section className="grid gap-4 md:grid-cols-3">
       {metrics.map((metric) => (

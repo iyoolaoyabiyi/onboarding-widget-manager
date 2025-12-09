@@ -2,9 +2,21 @@ import { Step } from "./types";
 
 type Props = {
   steps: Step[];
+  defaultTourName?: string;
+  defaultBaseUrl?: string;
+  defaultThemeColor?: string;
+  defaultCtaCopy?: string;
 };
 
-export default function TourEditor({ steps }: Props) {
+export default function TourEditor({
+  steps,
+  defaultTourName,
+  defaultBaseUrl,
+  defaultThemeColor,
+  defaultCtaCopy,
+}: Props) {
+  const hasSteps = steps.length > 0;
+
   return (
     <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -20,7 +32,7 @@ export default function TourEditor({ steps }: Props) {
           <span className="text-sm text-gray-300">Tour Name</span>
           <input
             className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30"
-            defaultValue="My App Onboarding"
+            defaultValue={defaultTourName ?? ""}
             placeholder="Name your tour"
           />
         </label>
@@ -29,7 +41,7 @@ export default function TourEditor({ steps }: Props) {
           <span className="text-sm text-gray-300">Base URL</span>
           <input
             className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30"
-            defaultValue="https://myapp.com"
+            defaultValue={defaultBaseUrl ?? ""}
             placeholder="https://your-app.com"
           />
         </label>
@@ -37,10 +49,13 @@ export default function TourEditor({ steps }: Props) {
         <label className="flex flex-col gap-2">
           <span className="text-sm text-gray-300">Theme Color</span>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg border border-white/10" style={{ background: "#0070F3" }} />
+            <div
+              className="h-10 w-10 rounded-lg border border-white/10"
+              style={{ background: defaultThemeColor ?? "transparent" }}
+            />
             <input
               className="flex-1 px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30"
-              defaultValue="#0070F3"
+              defaultValue={defaultThemeColor ?? ""}
               placeholder="#0070F3"
             />
           </div>
@@ -50,7 +65,7 @@ export default function TourEditor({ steps }: Props) {
           <span className="text-sm text-gray-300">CTA Copy</span>
           <input
             className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30"
-            defaultValue="Take a quick tour?"
+            defaultValue={defaultCtaCopy ?? ""}
             placeholder="Prompt users to start the tour"
           />
         </label>
@@ -62,30 +77,36 @@ export default function TourEditor({ steps }: Props) {
           <button className="px-3 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5">+ Add Step</button>
         </div>
 
-        <div className="space-y-3">
-          {steps.map((step) => (
-            <div
-              key={step.order}
-              className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3"
-            >
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-semibold">
-                  {step.order}
+        {hasSteps ? (
+          <div className="space-y-3">
+            {steps.map((step) => (
+              <div
+                key={step.order}
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-semibold">
+                    {step.order}
+                  </div>
+                  <div>
+                    <p className="font-semibold">{step.text}</p>
+                    <p className="text-sm text-gray-400">
+                      Target: {step.target} · Position: {step.position}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold">{step.text}</p>
-                  <p className="text-sm text-gray-400">
-                    Target: {step.target} · Position: {step.position}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <button className="px-3 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5">Edit</button>
+                  <button className="px-3 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5">Preview</button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5">Edit</button>
-                <button className="px-3 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5">Preview</button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-6 text-sm text-gray-400">
+            No steps yet. Add at least 5 steps to launch your first tour.
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-3">
