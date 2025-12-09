@@ -21,9 +21,9 @@ export class Analytics {
   ): void {
     const event: AnalyticsEvent = {
       tour_id: tourId,
-      step_id: stepId,
       action,
       timestamp: new Date().toISOString(),
+      ...(stepId !== undefined ? { step_id: stepId } : {}),
     };
 
     this.events.push(event);

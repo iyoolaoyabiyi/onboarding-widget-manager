@@ -48,7 +48,8 @@ export class ConfigLoader {
     }
 
     if (config.steps.length < 5) {
-      console.warn(`Tour only has ${config.steps.length} steps. Minimum recommended is 5.`);
+      console.error(`Tour has ${config.steps.length} steps. Minimum required is 5.`);
+      return false;
     }
 
     return true;

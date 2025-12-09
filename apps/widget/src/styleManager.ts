@@ -94,6 +94,19 @@ export class StyleManager {
       .onboarding-tour-actions .primary:hover {
         opacity: 0.9;
       }
+      .onboarding-tour-avatar {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 160px;
+        height: 160px;
+        z-index: ${HIGHEST_Z_INDEX};
+        pointer-events: none;
+      }
+      .onboarding-tour-avatar canvas {
+        width: 100%;
+        height: 100%;
+      }
     `;
   }
 

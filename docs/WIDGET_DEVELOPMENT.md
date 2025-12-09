@@ -1,6 +1,6 @@
 # Development Guide
 
-> Canonical stack choices: Firebase Auth for authentication and Firestore for tours + analytics storage. Widget bundle name: `ota-widget`.
+> Canonical stack choices: Firebase Auth for authentication and Firestore for tours + analytics storage. Widget bundle name: `ota-widget`. Animations use GSAP; optional minimal Three.js avatar can be toggled via `avatar_enabled` in tour config.
 
 ## Local Development Setup
 
@@ -107,6 +107,7 @@ pnpm run build
    - Open http://localhost:5174/public/demo.html
    - Click "Start Tour"
    - Test all navigation buttons and confirm widget animations run smoothly (GSAP/Framer or equivalent)
+   - Ensure tours contain at least 5 steps; the widget will reject configs with fewer
    - Open DevTools console to see analytics events
 
 3. **Test in embed demo**:

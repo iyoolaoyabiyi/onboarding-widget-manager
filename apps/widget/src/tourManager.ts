@@ -2,6 +2,7 @@ import type { TourConfig } from './types';
 import { StyleManager } from './styleManager';
 import { ConfigLoader } from './configLoader';
 import { TourRenderer } from './tourRenderer';
+import { AvatarAssistant } from './avatar';
 
 /**
  * Main tour manager - orchestrates the entire tour flow
@@ -11,9 +12,6 @@ export class TourManager {
 
   static async initialize(config?: TourConfig): Promise<void> {
     try {
-      // Load styles first
-      StyleManager.ensureStyles(config?.theme_color);
-
       // Get tour ID from script tag
       const tourId = ConfigLoader.getTourIdFromScript();
 
@@ -32,10 +30,27 @@ export class TourManager {
         return;
       }
 
+      // Prevent rerun if already completed
+      if (this.hasCompleted(tourConfig.id)) {
+        console.log(`Tour ${tourConfig.id} already completed. Skipping playback.`);
+        return;
+      }
+
+      // Load styles after we know the theme and that we need to run
+      StyleManager.ensureStyles(tourConfig.theme_color);
+
       // Create renderer and start tour
-      this.renderer = new TourRenderer(tourConfig);
+      this.renderer = new TourRenderer(tourConfig, () => {
+        this.markCompleted(tourConfig.id);
+        this.cleanup();
+      });
       this.renderer.setupEventListeners();
-      this.renderer.renderStep(0);
+      this.renderer.renderStep(this.renderer.getCurrentStepIndex());
+
+      // Optional avatar (minimal Three.js sphere)
+      if (tourConfig.avatar_enabled) {
+        AvatarAssistant.mount();
+      }
 
       console.log(`Tour initialized: ${tourConfig.name || tourConfig.id}`);
     } catch (error) {
@@ -59,7 +74,10 @@ export class TourManager {
   static skip(): void {
     if (this.renderer) {
       this.renderer.skip();
+      this.renderer = null;
     }
+    AvatarAssistant.destroy();
+    StyleManager.cleanup();
   }
 
   static cleanup(): void {
@@ -67,6 +85,7 @@ export class TourManager {
       this.renderer.destroy();
       this.renderer = null;
     }
+    AvatarAssistant.destroy();
     StyleManager.cleanup();
   }
 
@@ -76,5 +95,26 @@ export class TourManager {
 
   static isActive(): boolean {
     return this.renderer !== null;
+  }
+
+  private static completionKey(tourId: string): string {
+    return `onboarding_tour_${tourId}_completed`;
+  }
+
+  private static hasCompleted(tourId: string): boolean {
+    try {
+      return localStorage.getItem(this.completionKey(tourId)) === 'true';
+    } catch (err) {
+      console.warn('Unable to read completion state:', err);
+      return false;
+    }
+  }
+
+  private static markCompleted(tourId: string): void {
+    try {
+      localStorage.setItem(this.completionKey(tourId), 'true');
+    } catch (err) {
+      console.warn('Unable to persist completion state:', err);
+    }
   }
 }
