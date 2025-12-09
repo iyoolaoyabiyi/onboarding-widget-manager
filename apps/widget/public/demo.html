@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onboarding Widget - Embed Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      color: #333;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: #666;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #e8eef7;
+      color: #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #dce4f0;
+    }
+
+    .tour-targets {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+    }
+
+    .tour-targets h2 {
+      color: #333;
+      margin-bottom: 24px;
+      font-size: 24px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-item {
+      background: #f9fafb;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .feature-item:hover {
+      border-color: #667eea;
+      background: #f5f7ff;
+    }
+
+    .feature-item strong {
+      display: block;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .feature-item small {
+      color: #999;
+      font-size: 12px;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+      border-left: 4px solid #f39c12;
+      padding: 20px;
+      border-radius: 8px;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: #c27803;
+    }
+
+    .tour-id-display {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #666;
+      word-break: break-all;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .demo-grid,
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .controls button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header id="signup-btn">
+      <h1>🎯 Onboarding Widget Embed Demo</h1>
+      <p class="subtitle">Start the interactive tour to see how the widget works</p>
+      <button class="btn-primary" onclick="startTour()">▶️ Start Tour</button>
+    </header>
+
+    <div class="demo-grid">
+      <div class="card" id="dashboard-header">
+        <div class="card-icon">📊</div>
+        <h3>Real-time Analytics</h3>
+        <p>Track user engagement and tour completion rates with detailed metrics.</p>
+        <button class="btn-secondary" onclick="scrollTo('feature-1')">Learn More</button>
+      </div>
+
+      <div class="card" id="stat-activation">
+        <div class="card-icon">🎨</div>
+        <h3>Customizable Design</h3>
+        <p>Fully themeable widget with support for any color scheme or branding.</p>
+        <button class="btn-secondary" onclick="scrollTo('feature-2')">Learn More</button>
+      </div>
+
+      <div class="card" id="analytics-card">
+        <div class="card-icon">⚡</div>
+        <h3>Lightning Fast</h3>
+        <p>Minimal bundle size (11KB) ensures fast loading on any website.</p>
+        <button class="btn-secondary" onclick="scrollTo('feature-3')">Learn More</button>
+      </div>
+    </div>
+
+    <div class="tour-targets">
+      <h2>✨ Key Features</h2>
+      <div class="feature-grid">
+        <div class="feature-item" id="feature-1">
+          <strong>Multi-step Tours</strong>
+          <small>Guide users through 5+ steps</small>
+        </div>
+        <div class="feature-item" id="feature-2">
+          <strong>Smooth Animations</strong>
+          <small>Professional transitions</small>
+        </div>
+        <div class="feature-item" id="feature-3">
+          <strong>Persistent State</strong>
+          <small>Resume where you left off</small>
+        </div>
+        <div class="feature-item" id="feature-4">
+          <strong>Analytics Tracking</strong>
+          <small>Monitor user interactions</small>
+        </div>
+        <div class="feature-item" id="feature-5">
+          <strong>Easy Integration</strong>
+          <small>Single script tag embed</small>
+        </div>
+        <div class="feature-item" id="feature-6">
+          <strong>Mobile Responsive</strong>
+          <small>Works on all devices</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-primary" onclick="startTour()">▶️ Start Tour</button>
+      <button class="btn-secondary" onclick="nextStep()">→ Next Step</button>
+      <button class="btn-secondary" onclick="previousStep()">← Previous Step</button>
+      <button class="btn-secondary" onclick="stopTour()">⏹️ Stop Tour</button>
+    </div>
+
+    <div id="support-card" class="info-box">
+      <strong>💡 How it Works:</strong><br />
+      This page uses the onboarding widget to guide you through its features. The widget loads from a CDN and
+      overlays your page with interactive tooltips. All user interactions are tracked and logged. Start the tour
+      above to see it in action!
+    </div>
+  </div>
+
+  <!-- Include the onboarding widget -->
+  <!-- Note: Update the src to your actual deployment URL -->
+  <script src="http://localhost:5173/dist/onboarding-tour.umd.js" data-tour-id="tour_demo_001"></script>
+
+  <script>
+    function startTour() {
+      if (window.OnboardingTour) {
+        window.OnboardingTour.init();
+      } else {
+        alert('Tour widget not loaded. Make sure the script is properly included.');
+      }
+    }
+
+    function nextStep() {
+      if (window.OnboardingTour) {
+        window.OnboardingTour.next();
+      }
+    }
+
+    function previousStep() {
+      if (window.OnboardingTour) {
+        window.OnboardingTour.back();
+      }
+    }
+
+    function stopTour() {
+      if (window.OnboardingTour) {
+        window.OnboardingTour.stop();
+      }
+    }
+
+    function scrollTo(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // Log to console when page loads
+    console.log('Embed demo page loaded. OnboardingTour API available:', !!window.OnboardingTour);
+  </script>
+</body>
+</html>

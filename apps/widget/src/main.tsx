@@ -1,5 +1,4 @@
 // SHARED INTERFACES (We must adhere to this)
-
 interface TourStep {
   id: string;
   order: number;
@@ -20,7 +19,6 @@ export interface TourConfig {
 }
 
 // DEFAULT CONFIGURATION
-
 const DEFAULT_TOUR_CONFIG: TourConfig = {
   id: 'tour_12345',
   name: 'New User Onboarding',
@@ -70,7 +68,6 @@ const DEFAULT_TOUR_CONFIG: TourConfig = {
 };
 
 // GLOBAL STATE
-
 let currentTourConfig: TourConfig | null = null;
 let currentStepIndex: number = 0;
 let highlightedElement: HTMLElement | null = null;
@@ -79,7 +76,6 @@ let tooltipElement: HTMLDivElement | null = null;
 const STYLE_ID = 'onboarding-tour-styles';
 
 // STYLE MANAGEMENT
-
 function ensureStyles(): void {
   if (document.getElementById(STYLE_ID)) return;
 
@@ -156,7 +152,6 @@ function ensureStyles(): void {
 }
 
 // TOOLTIP CREATION & EVENT WIRING 
-
 function createTooltip(): HTMLDivElement {
   if (tooltipElement) return tooltipElement;
 
@@ -181,7 +176,6 @@ function createTooltip(): HTMLDivElement {
 }
 
 // UTILITIES
-
 function getTourId(): string | null {
   const scriptTag = document.querySelector('script[src*="onboarding-tour"]');
   if (scriptTag) {
@@ -191,7 +185,6 @@ function getTourId(): string | null {
 }
 
 // DATABASE & ANALYTICS PLACEHOLDERS 
-
 async function fetchTourConfig(tourId: string): Promise<TourConfig> {
   // TODO: REPLACE THIS WITH REAL DB FETCH
   // Example: Use Firebase client to fetch tour data by ID
@@ -233,10 +226,6 @@ function sendAnalyticsEvent(action: AnalyticsAction, stepId?: string): void {
 }
 
 // CLEANUP AND RESET
-
-/**
- * Removes all injected elements and styles from the host page.
- */
 function cleanupTour(): void {
   if (highlightedElement) {
     highlightedElement.classList.remove('tour-highlighted-element');
@@ -261,7 +250,6 @@ function skipTour(): void {
 }
 
 // RESPONSIVENESS
-
 function handleReposition(): void {
   if (highlightedElement && tooltipElement && currentTourConfig) {
     const step = currentTourConfig.steps[currentStepIndex];
@@ -275,7 +263,6 @@ function setupEventListeners(): void {
 }
 
 // POSITIONING AND RENDERING
-
 function positionTooltip(target: HTMLElement, position: TourStep['position']): void {
   if (!tooltipElement) return;
 
@@ -365,7 +352,6 @@ function renderStep(index: number): void {
 }
 
 // NAVIGATION
-
 function nextStep(): void {
   if (!currentTourConfig) return;
   
@@ -391,7 +377,6 @@ function previousStep(): void {
 }
 
 // INITIALIZATION
-
 async function initializeTour(config?: TourConfig): Promise<void> {
   ensureStyles();
   createTooltip(); // Ensure the element exists
@@ -418,7 +403,6 @@ async function initializeTour(config?: TourConfig): Promise<void> {
 }
 
 // AUTO-LOAD (DOM ready)
-
 document.addEventListener('DOMContentLoaded', () => {
   // Only auto-initialize if the script has a data-tour-id attribute
   if (getTourId()) {
@@ -432,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // PUBLIC API EXPORTS (for UMD build) 
-
 export {
   initializeTour,
   nextStep as next,
