@@ -23,6 +23,9 @@ export type Step = {
   target: string;
   text: string;
   position: string;
+  content?: string;
+  cta_text?: string;
+  cta_url?: string;
 };
 
 export type Metric = {

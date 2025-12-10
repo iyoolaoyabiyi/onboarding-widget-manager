@@ -75,6 +75,9 @@ export default function Dashboard() {
               target: step.target_element,
               text: step.title,
               position: step.position,
+              content: step.content,
+              cta_text: step.cta_text,
+              cta_url: step.cta_url,
             }));
             setSteps(convertedSteps);
           }
@@ -103,6 +106,9 @@ export default function Dashboard() {
           target: step.target_element,
           text: step.title,
           position: step.position,
+          content: step.content,
+          cta_text: step.cta_text,
+          cta_url: step.cta_url,
         }));
         setSteps(convertedSteps);
       }
@@ -125,7 +131,9 @@ export default function Dashboard() {
         target_element: step.target,
         position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
         title: step.text,
-        content: step.text,
+        content: step.content || step.text,
+        ...(step.cta_text && { cta_text: step.cta_text }),
+        ...(step.cta_url && { cta_url: step.cta_url }),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }));
@@ -215,7 +223,9 @@ export default function Dashboard() {
         target_element: step.target,
         position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
         title: step.text,
-        content: step.text,
+        content: step.content || step.text,
+        ...(step.cta_text && { cta_text: step.cta_text }),
+        ...(step.cta_url && { cta_url: step.cta_url }),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }));
