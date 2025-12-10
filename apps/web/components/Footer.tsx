@@ -45,18 +45,6 @@ export default function Footer() {
               <Settings className="w-4 h-4" />
               Dashboard
             </Link>
-            <Link
-              href="/privacy"
-              className="text-gray-400 hover:text-gray-200 transition-colors text-sm"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/terms"
-              className="text-gray-400 hover:text-gray-200 transition-colors text-sm"
-            >
-              Terms of Service
-            </Link>
           </motion.div>
         </div>
 

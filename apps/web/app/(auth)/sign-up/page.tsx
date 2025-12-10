@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
     const [name, setName] = useState("");
@@ -14,6 +15,7 @@ export default function SignUp() {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const router = useRouter()
 
     async function handleSignUp(e: React.FormEvent) {
         e.preventDefault();
@@ -22,6 +24,7 @@ export default function SignUp() {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
             toast.success("Account created successfully!");
+            router.push("/dashboard")
         } catch (error: any) {
             toast.error(error.message || "Failed to create account.");
         } finally {

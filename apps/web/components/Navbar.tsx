@@ -8,15 +8,18 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Menu, X, FileText, Code, Settings, HelpCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, loading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter()
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       toast.success("Logged out successfully!");
+      router.push("/")
     } catch (error) {
       toast.error("Failed to log out.");
     }
@@ -47,7 +50,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-gray-800 backdrop-blur supports-backdrop-filter:bg-gray-950/60">
+    <nav className="sticky top-0 z-50 border-b border-gray-800 backdrop-blur supports-backdrop-filter:bg-/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
