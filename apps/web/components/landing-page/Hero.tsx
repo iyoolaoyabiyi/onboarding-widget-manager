@@ -26,13 +26,13 @@ export default function Hero() {
   }, []);
   
   const fullCode = `// Initialize tour in seconds
-Tour.init({
-  steps: [
-    { target: '#hero', content: 'Welcome!' },
-    { target: '.features', content: 'Discover features' },
-    { target: '#cta', content: 'Get started now' }
-  ]
-});`;
+  Tour.init({
+    steps: [
+      { id: "step-1", target: "#hero", content: "Welcome!" },
+      { id: "step-2", target: "#features", content: "Check this out." },
+      { id: "step-3", target: "#cta", content: "Get started here!" }
+    ]
+  });`;
 
   const [displayed, setDisplayed] = React.useState("");
   const [showCursor, setShowCursor] = React.useState(true);
