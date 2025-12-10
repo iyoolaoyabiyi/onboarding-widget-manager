@@ -35,7 +35,7 @@ export default function ToursPanel({ tours }: Props) {
                 </div>
                 <span className="text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10">{tour.status}</span>
               </div>
-              <p className="text-sm text-gray-400">{tour.baseUrl}</p>
+              <p className="text-sm text-gray-400">{tour.allowed_domains.join(', ')}</p>
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300">
                 <span>{tour.steps} steps</span>
                 <span>·</span>

@@ -1,6 +1,7 @@
 import type { TourConfig } from '../types/types';
 import { StyleManager } from '../ui/styleManager';
 import { ConfigLoader } from '../config/configLoader';
+import { DomainValidator } from '../config/domainValidator';
 import { TourRenderer } from './tourRenderer';
 import { AvatarAssistant } from '../ui/avatar';
 import { Analytics } from '../analytics/analytics';
@@ -31,6 +32,14 @@ export class TourManager {
 
       // Validate configuration
       if (!ConfigLoader.validateConfig(tourConfig)) {
+        return;
+      }
+
+      // Validate domain - critical security check
+      if (!DomainValidator.validate(tourConfig.id, tourConfig.allowed_domains)) {
+        console.error(
+          `Tour ${tourConfig.id} is not allowed on this domain. Allowed domains: ${tourConfig.allowed_domains.join(', ')}`
+        );
         return;
       }
 
