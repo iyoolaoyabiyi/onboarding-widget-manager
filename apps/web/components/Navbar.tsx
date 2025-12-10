@@ -161,14 +161,6 @@ export default function Navbar() {
                       Documentation
                     </Link>
                     <Link
-                      href="/examples"
-                      onClick={toggleMenu}
-                      className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-xl transition-all duration-200"
-                    >
-                      <Settings className="w-5 h-5" />
-                      Examples
-                    </Link>
-                    <Link
                       href="/about"
                       onClick={toggleMenu}
                       className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-xl transition-all duration-200"
