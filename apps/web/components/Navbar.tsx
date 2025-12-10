@@ -7,7 +7,7 @@ import { signOut } from "firebase/auth";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { Menu, X, FileText, Code, Settings, HelpCircle } from "lucide-react";
+import { Menu, X, FileText, Code, HelpCircle, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -20,7 +20,7 @@ export default function Navbar() {
       await signOut(auth);
       toast.success("Logged out successfully!");
       router.push("/")
-    } catch (error) {
+    } catch {
       toast.error("Failed to log out.");
     }
   };
@@ -53,11 +53,6 @@ export default function Navbar() {
     open: { opacity: 1, x: 0 } as const
   };
 
-  const backdropVariants = {
-    closed: { opacity: 0 },
-    open: { opacity: 1 }
-  };
-
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-800 backdrop-blur supports-backdrop-filter:bg-/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,6 +67,13 @@ export default function Navbar() {
             </Link>
 
             <div className="hidden md:flex items-center gap-6">
+              <Link
+                href="/demo"
+                className="text-gray-400 hover:text-gray-200 transition-colors text-sm flex items-center gap-1"
+              >
+                <Sparkles className="w-4 h-4" />
+                Demo
+              </Link>
               <Link
                 href="/documentation"
                 className="text-gray-400 hover:text-gray-200 transition-colors text-sm flex items-center gap-1"
@@ -161,12 +163,12 @@ export default function Navbar() {
                       Documentation
                     </Link>
                     <Link
-                      href="/examples"
+                      href="/demo"
                       onClick={toggleMenu}
                       className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-xl transition-all duration-200"
                     >
-                      <Settings className="w-5 h-5" />
-                      Examples
+                      <Sparkles className="w-5 h-5" />
+                      Demo
                     </Link>
                     <Link
                       href="/about"

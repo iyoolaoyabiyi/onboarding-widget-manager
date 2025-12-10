@@ -7,6 +7,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import TourEditorNew from "@/components/dashboard/TourEditorNew";
 import ToursPanelNew from "@/components/dashboard/ToursPanelNew";
 import StepModal from "@/components/dashboard/StepModal";
+import AnalyticsSection from "@/components/dashboard/AnalyticsSection";
 import { FirestoreService } from "@/lib/firestore";
 import type { Tour, Step } from "@/components/dashboard/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -75,6 +76,9 @@ export default function Dashboard() {
               target: step.target_element,
               text: step.title,
               position: step.position,
+              content: step.content,
+              cta_text: step.cta_text,
+              cta_url: step.cta_url,
             }));
             setSteps(convertedSteps);
           }
@@ -103,6 +107,9 @@ export default function Dashboard() {
           target: step.target_element,
           text: step.title,
           position: step.position,
+          content: step.content,
+          cta_text: step.cta_text,
+          cta_url: step.cta_url,
         }));
         setSteps(convertedSteps);
       }
@@ -125,7 +132,9 @@ export default function Dashboard() {
         target_element: step.target,
         position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
         title: step.text,
-        content: step.text,
+        content: step.content || step.text,
+        ...(step.cta_text && { cta_text: step.cta_text }),
+        ...(step.cta_url && { cta_url: step.cta_url }),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }));
@@ -215,7 +224,9 @@ export default function Dashboard() {
         target_element: step.target,
         position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
         title: step.text,
-        content: step.text,
+        content: step.content || step.text,
+        ...(step.cta_text && { cta_text: step.cta_text }),
+        ...(step.cta_url && { cta_url: step.cta_url }),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }));
@@ -366,6 +377,11 @@ export default function Dashboard() {
                 Make sure {currentTour.allowed_domains.join(", ")} are added to your tour&apos;s allowed domains.
               </p>
             </div>
+          )}
+
+          {/* Analytics Section */}
+          {currentTour && (
+            <AnalyticsSection tourId={currentTour.id} />
           )}
         </div>
       </div>

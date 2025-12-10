@@ -14,11 +14,26 @@ export class TourRenderer {
   private resizeHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;
   private onFinish: () => void;
+  private onCancel?: () => void;
 
-  constructor(config: TourConfig, onFinish: () => void) {
+  /**
+   * Cancel any active GSAP tweens to avoid lingering animations when skipping.
+   */
+  private clearAnimations(): void {
+    if (this.highlightedElement) {
+      gsap.killTweensOf(this.highlightedElement);
+    }
+    const tooltip = TooltipManager.getInstance();
+    if (tooltip) {
+      gsap.killTweensOf(tooltip);
+    }
+  }
+
+  constructor(config: TourConfig, onFinish: () => void, onCancel?: () => void) {
     this.config = config;
     this.currentStepIndex = this.loadSavedStepIndex();
     this.onFinish = onFinish;
+    this.onCancel = onCancel;
   }
 
   renderStep(index: number): void {
@@ -108,11 +123,17 @@ export class TourRenderer {
     }
   }
 
-  skip(): void {
+  skip(): boolean {
     const currentStep = this.config.steps[this.currentStepIndex];
     Analytics.track('step_skipped', this.config.id, currentStep?.id);
     this.clearPersistedStep();
+    this.clearAnimations();
+    if (this.onCancel) {
+      this.onCancel();
+      return true;
+    }
     this.destroy();
+    return false;
   }
 
   private handleButtonClick(action: string): void {
@@ -130,6 +151,7 @@ export class TourRenderer {
   }
 
   private removeHighlight(): void {
+    this.clearAnimations();
     if (this.highlightedElement) {
       this.highlightedElement.classList.remove(HIGHLIGHT_CLASS);
       this.highlightedElement = null;
@@ -144,6 +166,10 @@ export class TourRenderer {
     window.addEventListener('scroll', this.scrollHandler);
   }
 
+  getTotalSteps(): number {
+    return this.config.steps.length;
+  }
+
   private reposition(): void {
     if (!this.highlightedElement) return;
 
@@ -155,6 +181,7 @@ export class TourRenderer {
   }
 
   destroy(): void {
+    this.clearAnimations();
     this.removeHighlight();
     TooltipManager.destroy();
 

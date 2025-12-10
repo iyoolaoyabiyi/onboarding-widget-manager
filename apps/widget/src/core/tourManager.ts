@@ -52,14 +52,39 @@ export class TourManager {
       // Load or create session
       await this.initializeSession(tourConfig.id);
 
+      // Initialize analytics with session
+      await Analytics.loadSession(tourConfig.id);
+
       // Load styles after we know the theme and that we need to run
       StyleManager.ensureStyles(tourConfig.theme);
 
       // Create renderer and start tour
-      this.renderer = new TourRenderer(tourConfig, () => {
-        this.markCompleted(tourConfig.id);
-        this.cleanup();
-      });
+      this.renderer = new TourRenderer(
+        tourConfig,
+        async () => {
+          try {
+            this.markCompleted(tourConfig.id);
+            const totalSteps = this.renderer?.getTotalSteps?.() || tourConfig.steps.length;
+            await Analytics.finalizeSession(totalSteps).catch((error) => {
+              console.warn('Failed to finalize session:', error);
+            });
+          } finally {
+            // Ensure teardown even if analytics fails.
+            await this.cleanup();
+          }
+        },
+        async () => {
+          try {
+            const totalSteps = this.renderer?.getTotalSteps?.() || tourConfig.steps.length;
+            await Analytics.finalizeSession(totalSteps).catch((error) => {
+              console.warn('Failed to finalize session on skip:', error);
+            });
+          } finally {
+            // Ensure teardown even if analytics fails.
+            await this.cleanup();
+          }
+        }
+      );
       this.renderer.setupEventListeners();
       this.renderer.renderStep(this.renderer.getCurrentStepIndex());
 
@@ -88,21 +113,36 @@ export class TourManager {
   }
 
   static skip(): void {
-    if (this.renderer) {
-      this.renderer.skip();
-      this.renderer = null;
+    try {
+      if (this.renderer) {
+        const handled = this.renderer.skip();
+        if (!handled) {
+          const totalSteps = this.renderer.getTotalSteps?.() || 5;
+          // Finalize analytics asynchronously without blocking
+          Analytics.finalizeSession(totalSteps).catch((error) => {
+            console.warn('Failed to finalize session on skip:', error);
+          });
+          this.renderer = null;
+        }
+      }
+    } finally {
+      // Ensure avatar and styles are always cleaned up, even if skip throws.
+      AvatarAssistant.destroy();
+      StyleManager.cleanup();
     }
-    AvatarAssistant.destroy();
-    StyleManager.cleanup();
   }
 
-  static cleanup(): void {
-    if (this.renderer) {
-      this.renderer.destroy();
-      this.renderer = null;
+  static async cleanup(): Promise<void> {
+    try {
+      if (this.renderer) {
+        this.renderer.destroy();
+        this.renderer = null;
+      }
+    } finally {
+      // Always tear down avatar and injected styles.
+      AvatarAssistant.destroy();
+      StyleManager.cleanup();
     }
-    AvatarAssistant.destroy();
-    StyleManager.cleanup();
   }
 
   static getRenderer(): TourRenderer | null {

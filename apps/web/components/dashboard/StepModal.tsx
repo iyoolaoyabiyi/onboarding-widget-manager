@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Step } from './types';
 
 interface StepModalProps {
@@ -21,10 +21,13 @@ export default function StepModal({ isOpen, step, onClose, onSave }: StepModalPr
   const [formData, setFormData] = useState<Step>(step || defaultStep);
 
   // When modal opens, update form with step data
-  const displayStep = step || defaultStep;
-  if (formData.order !== displayStep.order || formData.text !== displayStep.text) {
-    setFormData(displayStep);
-  }
+  useEffect(() => {
+    if (isOpen && step) {
+      setFormData(step);
+    } else if (isOpen && !step) {
+      setFormData(defaultStep);
+    }
+  }, [isOpen, step]);
 
   const handleSave = () => {
     if (!formData.text.trim()) {
@@ -35,6 +38,7 @@ export default function StepModal({ isOpen, step, onClose, onSave }: StepModalPr
       alert('Target selector is required');
       return;
     }
+
     onSave(formData);
     onClose();
   };
@@ -70,20 +74,21 @@ export default function StepModal({ isOpen, step, onClose, onSave }: StepModalPr
 
         <div className="space-y-4">
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Step Text *</span>
+            <span className="text-sm text-gray-300">Step Order</span>
             <input
-              type="text"
-              value={formData.text}
+              type="number"
+              value={formData.order}
               onChange={(e) =>
-                setFormData({ ...formData, text: e.target.value })
+                setFormData({ ...formData, order: parseInt(e.target.value) || 1 })
               }
-              placeholder="e.g., Click to get started"
+              min="1"
+              max="10"
               className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white"
             />
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Target Selector *</span>
+            <span className="text-sm text-gray-300">Target Element (CSS Selector) *</span>
             <input
               type="text"
               value={formData.target}
@@ -99,13 +104,39 @@ export default function StepModal({ isOpen, step, onClose, onSave }: StepModalPr
           </label>
 
           <label className="flex flex-col gap-2">
+            <span className="text-sm text-gray-300">Title *</span>
+            <input
+              type="text"
+              value={formData.text}
+              onChange={(e) =>
+                setFormData({ ...formData, text: e.target.value })
+              }
+              placeholder="e.g., Click to get started"
+              className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-gray-300">Content</span>
+            <textarea
+              value={formData.content || ''}
+              onChange={(e) =>
+                setFormData({ ...formData, content: e.target.value })
+              }
+              placeholder="Detailed explanation of this step..."
+              rows={2}
+              className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white resize-none"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
             <span className="text-sm text-gray-300">Position</span>
             <select
               value={formData.position}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  position: e.target.value as Step['position'],
+                  position: e.target.value,
                 })
               }
               className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white"
@@ -117,6 +148,34 @@ export default function StepModal({ isOpen, step, onClose, onSave }: StepModalPr
               <option value="center">Center</option>
             </select>
           </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-gray-300">CTA Text (optional)</span>
+            <input
+              type="text"
+              value={formData.cta_text || ''}
+              onChange={(e) =>
+                setFormData({ ...formData, cta_text: e.target.value })
+              }
+              placeholder="e.g., Learn More"
+              className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white text-sm"
+            />
+          </label>
+
+          {formData.cta_text && (
+            <label className="flex flex-col gap-2">
+              <span className="text-sm text-gray-300">CTA URL</span>
+              <input
+                type="url"
+                value={formData.cta_url || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, cta_url: e.target.value })
+                }
+                placeholder="https://example.com"
+                className="px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white text-sm"
+              />
+            </label>
+          )}
         </div>
 
         <div className="flex gap-3 pt-4">

@@ -1,11 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Toaster } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
+
+const DASHBOARD_TARGETS = ["#create-tour-section", "#tour-list", "#tour-editor"];
+
+declare global {
+  interface Window {
+    OnboardingTour?: {
+      init?: (config?: unknown) => Promise<void>;
+      next?: () => void;
+      back?: () => void;
+      skip?: () => void;
+      stop?: () => void;
+    };
+  }
+}
 
 export default function LayoutClient({
   children,
@@ -16,65 +30,49 @@ export default function LayoutClient({
   const isAuthRoute =
     pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
 
-  const hasTriedInit = useRef(false);
-
   const isDashboard = pathname.startsWith("/dashboard");
 
-  const hasBootstrapTargets = useCallback(() => {
-    // Known dashboard anchors; adjust if dashboard structure changes
-    const selectors = ["#create-tour-section", "#tour-list", "#tour-editor"];
-    return selectors.some((sel) => Boolean(document.querySelector(sel)));
-  }, []);
+  const hasInitialized = useRef(false);
+  const tryInitRef = useRef<() => boolean>(() => false);
 
-  const tryInit = useCallback(() => {
-    if (hasTriedInit.current) return true;
-    if (!isDashboard) return false; // avoid initializing on routes without targets
+  useEffect(() => {
+    if (!isDashboard || hasInitialized.current) {
+      tryInitRef.current = () => false;
+      return;
+    }
 
-    const tourApi = window as typeof window & {
-      OnboardingTour?: { init?: () => Promise<void> };
-    };
+    const tryInit = () => {
+      if (hasInitialized.current) return true;
 
-    if (tourApi.OnboardingTour?.init) {
-      if (!hasBootstrapTargets()) {
-        // Wait until known elements are in the DOM
-        return false;
-      }
-      hasTriedInit.current = true;
-      tourApi.OnboardingTour.init().catch((err) => {
+      const hasTarget = DASHBOARD_TARGETS.some((selector) =>
+        Boolean(document.querySelector(selector))
+      );
+
+      if (!hasTarget || !window.OnboardingTour?.init) return false;
+
+      hasInitialized.current = true;
+      window.OnboardingTour.init().catch((err) => {
         console.error("OnboardingTour init failed", err);
       });
       return true;
-    }
-    return false;
-  }, [hasBootstrapTargets, isDashboard]);
-
-  const scheduleInit = useCallback(() => {
-    let attempts = 0;
-    const maxAttempts = 20; // ~6s (20 * 300ms)
-    const tick = () => {
-      if (tryInit()) return;
-      attempts += 1;
-      if (attempts >= maxAttempts) return;
-      window.setTimeout(tick, 300);
     };
 
-    if (document.readyState === "complete") {
-      tick();
-    } else {
-      window.addEventListener(
-        "load",
-        () => {
-          tick();
-        },
-        { once: true }
-      );
-    }
-  }, [tryInit]);
+    tryInitRef.current = tryInit;
 
-  // Fallback: if script was cached and onLoad didn't fire in SPA nav, re-attempt on mount
-  useEffect(() => {
-    scheduleInit();
-  }, [scheduleInit]);
+    // Fast path: if elements and script are already ready
+    if (tryInit()) return;
+
+    const observer = new MutationObserver(() => {
+      if (tryInit()) observer.disconnect();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      tryInitRef.current = () => false;
+      observer.disconnect();
+    };
+  }, [isDashboard]);
 
   return (
     <>
@@ -82,7 +80,10 @@ export default function LayoutClient({
         src="https://onboarding-tour-app.web.app/ota-widget.js"
         strategy="lazyOnload"
         data-tour-id="tour_1765362736411"
-        onLoad={scheduleInit}
+        onLoad={() => {
+          // Attempt init when the widget script becomes available; observer continues if targets aren't ready yet
+          tryInitRef.current();
+        }}
       />
       {!isAuthRoute && <Navbar />}
       <Toaster position="top-right" richColors closeButton />
