@@ -19,9 +19,11 @@ interface TourEditorProps {
   steps: Step[];
   onSave: (tour: Partial<Tour>) => Promise<void>;
   onAddStep: () => void;
+  onEditStep: (order: number) => void;
+  onDeleteStep: (order: number) => void;
 }
 
-export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEditorProps) {
+export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep, onDeleteStep }: TourEditorProps) {
   const [formData, setFormData] = useState({
     name: tour?.name || '',
     description: tour?.description || '',
@@ -68,8 +70,8 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
 
   return (
     <div className="space-y-6">
-      <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6">
-        <div className="flex items-center justify-between" id='tour-editor-header'>
+      <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6" id='tour-editor-header'>
+        <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">Tour Configuration</h2>
             <p className="text-gray-400 text-sm">Set up your tour properties and security settings.</p>
@@ -197,10 +199,16 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5">
+                  <button
+                    onClick={() => onEditStep(step.order)}
+                    className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5"
+                  >
                     Edit
                   </button>
-                  <button className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5">
+                  <button
+                    onClick={() => onDeleteStep(step.order)}
+                    className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5 text-red-300"
+                  >
                     Delete
                   </button>
                 </div>

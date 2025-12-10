@@ -5,16 +5,21 @@ import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import TourEditorNew from "@/components/dashboard/TourEditorNew";
 import ToursPanelNew from "@/components/dashboard/ToursPanelNew";
+import StepModal from "@/components/dashboard/StepModal";
 import { FirestoreService } from "@/lib/firestore";
 import type { Tour, Step } from "@/components/dashboard/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [tours, setTours] = useState<Tour[]>([]);
   const [currentTour, setCurrentTour] = useState<Tour | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isStepModalOpen, setIsStepModalOpen] = useState(false);
+  const [editingStep, setEditingStep] = useState<Step | null>(null);
 
   const widgetSrc =
     process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
@@ -25,11 +30,16 @@ export default function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        // Primary: user-owned tours; Fallback: all tours (useful if owner_id missing in data)
-        let userTours = await FirestoreService.getUserTours();
-        if (!userTours.length) {
-          userTours = await FirestoreService.getAllTours();
+
+        if (!user) {
+          setTours([]);
+          setCurrentTour(null);
+          setSteps([]);
+          return;
         }
+
+        // Only load tours owned by the current user
+        const userTours = await FirestoreService.getUserTours(user.uid);
 
         // Convert Firestore format to dashboard format
         const convertedTours: Tour[] = userTours.map((tour) => ({
@@ -77,8 +87,10 @@ export default function Dashboard() {
       }
     };
 
-    loadTours();
-  }, []);
+    if (!authLoading) {
+      loadTours();
+    }
+  }, [authLoading, user]);
 
   const handleSelectTour = async (tour: Tour) => {
     try {
@@ -104,6 +116,19 @@ export default function Dashboard() {
     }
 
     try {
+      // Convert Step[] to Firestore TourStep[] format
+      const convertedSteps = steps.map((step) => ({
+        id: `${currentTour.id}_step_${step.order}`,
+        tour_id: currentTour.id,
+        order: step.order,
+        target_element: step.target,
+        position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
+        title: step.text,
+        content: step.text,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
       // Prepare data for Firestore format
       const updateData = {
         name: updates.name,
@@ -112,8 +137,8 @@ export default function Dashboard() {
         avatar_enabled: updates.avatar_enabled,
         allowed_domains: updates.allowed_domains,
         status: updates.status,
+        steps: convertedSteps,
         updated_at: new Date().toISOString(),
-        // Note: steps are preserved from existing tour
       };
 
       await FirestoreService.updateTour(currentTour.id, updateData);
@@ -149,6 +174,56 @@ export default function Dashboard() {
     };
 
     setSteps([...steps, newStep]);
+  };
+
+  const handleEditStep = (order: number) => {
+    const step = steps.find((s) => s.order === order);
+    if (step) {
+      setEditingStep(step);
+      setIsStepModalOpen(true);
+    }
+  };
+
+  const handleDeleteStep = (order: number) => {
+    const updated = steps
+      .filter((s) => s.order !== order)
+      .map((s, idx) => ({ ...s, order: idx + 1 }));
+    setSteps(updated);
+  };
+
+  const handleSaveStep = async (updatedStep: Step) => {
+    if (!currentTour) return;
+
+    const newSteps = editingStep
+      ? steps.map((s) => (s.order === editingStep.order ? updatedStep : s))
+      : [...steps, updatedStep];
+
+    setSteps(newSteps);
+    setEditingStep(null);
+    setIsStepModalOpen(false);
+
+    // Auto-save to Firestore
+    try {
+      const convertedSteps = newSteps.map((step) => ({
+        id: `${currentTour.id}_step_${step.order}`,
+        tour_id: currentTour.id,
+        order: step.order,
+        target_element: step.target,
+        position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
+        title: step.text,
+        content: step.text,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      await FirestoreService.updateTour(currentTour.id, {
+        steps: convertedSteps,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('Failed to save steps:', err);
+      alert('Failed to save step changes');
+    }
   };
 
   const handleDeleteTour = async (tourId: string) => {
@@ -214,12 +289,13 @@ export default function Dashboard() {
       <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
         <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
           {/* Header */}
-          <div className="flex items-center justify-between" id="create-tour-section">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Dashboard</h1>
               <p className="text-gray-400 mt-2">Manage and analyze your onboarding tours</p>
             </div>
-            <button
+            <button 
+              id="create-tour-button"
               onClick={() => router.push("/dashboard/create")}
               className="px-6 py-3 rounded-lg bg-white text-black font-semibold hover:opacity-90"
             >
@@ -241,7 +317,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid gap-6 lg:grid-cols-3">
               {/* Tour List */}
-              <div className="lg:col-span-1" id="tour-list">
+              <div className="lg:col-span-1">
                 <ToursPanelNew
                   tours={tours}
                   onSelectTour={handleSelectTour}
@@ -258,11 +334,14 @@ export default function Dashboard() {
                     steps={steps}
                     onSave={handleSaveTour}
                     onAddStep={handleAddStep}
+                    onEditStep={handleEditStep}
+                    onDeleteStep={handleDeleteStep}
                   />
                 </div>
               )}
             </div>
           )}
+
 
           {/* Integration Help */}
           {currentTour && steps.length >= 5 && (
@@ -283,6 +362,16 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <StepModal
+        isOpen={isStepModalOpen}
+        step={editingStep}
+        onClose={() => {
+          setIsStepModalOpen(false);
+          setEditingStep(null);
+        }}
+        onSave={handleSaveStep}
+      />
     </ProtectedRoute>
   );
 }
