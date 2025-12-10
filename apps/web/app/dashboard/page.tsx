@@ -7,6 +7,7 @@ import TourEditorNew from "@/components/dashboard/TourEditorNew";
 import ToursPanelNew from "@/components/dashboard/ToursPanelNew";
 import { FirestoreService } from "@/lib/firestore";
 import type { Tour, Step } from "@/components/dashboard/types";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -137,7 +138,7 @@ export default function Dashboard() {
 
     const newOrder = steps.length + 1;
     if (newOrder > 10) {
-      alert("Maximum 10 steps allowed");
+      toast.info("Maximum 10 steps allowed");
       return;
     }
 
@@ -173,7 +174,7 @@ export default function Dashboard() {
         }
       }
     } catch (err) {
-      alert('Failed to delete tour: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      toast.error('Failed to delete tour: ' + (err instanceof Error ? err.message : 'Unknown error'));
       console.error('Error deleting tour:', err);
     }
   };

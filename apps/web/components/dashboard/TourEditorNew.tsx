@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Step, Tour } from './types';
 import DomainManager from './DomainManager';
+import { toast } from 'sonner';
 
 // Theme definitions matching widget
 const THEMES = {
@@ -36,12 +37,12 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert('Tour name is required');
+      toast.info('Tour name is required');
       return;
     }
 
     if (formData.allowed_domains.length === 0) {
-      alert('At least one domain is required');
+      toast.info('At least one domain is required');
       return;
     }
 
@@ -58,7 +59,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
-      alert('Failed to save tour: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      toast.error('Failed to save tour: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsSaving(false);
     }

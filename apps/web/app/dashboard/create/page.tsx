@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { FirestoreService } from "@/lib/firestore";
+import { toast } from "sonner";
 
 type TourStep = {
   order: number;
@@ -32,7 +33,7 @@ export default function CreateTourPage() {
 
   const handleAddStep = () => {
     if (steps.length >= 10) {
-      alert("Maximum 10 steps allowed");
+      toast.info("Maximum 10 steps allowed");
       return;
     }
 
