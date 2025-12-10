@@ -25,7 +25,11 @@ export default function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        const userTours = await FirestoreService.getUserTours();
+        // Primary: user-owned tours; Fallback: all tours (useful if owner_id missing in data)
+        let userTours = await FirestoreService.getUserTours();
+        if (!userTours.length) {
+          userTours = await FirestoreService.getAllTours();
+        }
 
         // Convert Firestore format to dashboard format
         const convertedTours: Tour[] = userTours.map((tour) => ({

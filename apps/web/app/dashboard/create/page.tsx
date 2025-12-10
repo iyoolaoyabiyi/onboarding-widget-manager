@@ -79,7 +79,8 @@ export default function CreateTourPage() {
         theme: theme,
         allowed_domains: domains,
         owner_id: '', // Will be set by FirestoreService
-        status: 'draft' as const,
+        // Default new tours to active once minimum steps are provided
+        status: 'active' as const,
         avatar_enabled: avatarEnabled,
         min_steps: 5,
         total_views: 0,

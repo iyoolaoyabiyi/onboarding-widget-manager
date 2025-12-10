@@ -106,6 +106,16 @@ export class FirestoreService {
   }
 
   /**
+   * Get all tours (fallback when ownership data is missing)
+   * Note: Reads are already allowed by rules; caller controls visibility.
+   */
+  static async getAllTours(): Promise<TourConfig[]> {
+    const toursRef = collection(this.db, 'tours');
+    const snap = await getDocs(toursRef);
+    return snap.docs.map((doc) => doc.data() as TourConfig);
+  }
+
+  /**
    * Update a tour
    */
   static async updateTour(tourId: string, updates: Partial<TourConfig>): Promise<void> {
