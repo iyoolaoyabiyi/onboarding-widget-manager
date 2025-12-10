@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Step } from './types';
 
 interface StepModalProps {
@@ -10,28 +10,21 @@ interface StepModalProps {
   onSave: (step: Step) => void;
 }
 
-export default function StepModal({ isOpen, step, onClose, onSave }: StepModalProps) {
-  const [formData, setFormData] = useState<Step>({
-    order: 1,
-    text: '',
-    target: '',
-    position: 'bottom',
-  });
+const defaultStep: Step = {
+  order: 1,
+  text: '',
+  target: '',
+  position: 'bottom',
+};
 
-  useEffect(() => {
-    if (isOpen) {
-      if (step) {
-        setFormData(step);
-      } else {
-        setFormData({
-          order: 1,
-          text: '',
-          target: '',
-          position: 'bottom',
-        });
-      }
-    }
-  }, [isOpen, step]);
+export default function StepModal({ isOpen, step, onClose, onSave }: StepModalProps) {
+  const [formData, setFormData] = useState<Step>(step || defaultStep);
+
+  // When modal opens, update form with step data
+  const displayStep = step || defaultStep;
+  if (formData.order !== displayStep.order || formData.text !== displayStep.text) {
+    setFormData(displayStep);
+  }
 
   const handleSave = () => {
     if (!formData.text.trim()) {

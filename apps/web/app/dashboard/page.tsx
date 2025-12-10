@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import TourEditorNew from "@/components/dashboard/TourEditorNew";
 import ToursPanelNew from "@/components/dashboard/ToursPanelNew";
@@ -152,8 +153,11 @@ export default function Dashboard() {
 
       setCurrentTour(updated);
       setTours(tours.map((t) => (t.id === currentTour.id ? updated : t)));
+      toast.success("Tour saved successfully");
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : "Failed to save tour");
+      const message = err instanceof Error ? err.message : "Failed to save tour";
+      toast.error(message);
+      throw new Error(message);
     }
   };
 
@@ -220,9 +224,10 @@ export default function Dashboard() {
         steps: convertedSteps,
         updated_at: new Date().toISOString(),
       });
+      toast.success("Step saved successfully");
     } catch (err) {
       console.error('Failed to save steps:', err);
-      alert('Failed to save step changes');
+      toast.error('Failed to save step changes');
     }
   };
 
@@ -247,8 +252,10 @@ export default function Dashboard() {
           setSteps([]);
         }
       }
+      toast.success('Tour deleted successfully');
     } catch (err) {
-      alert('Failed to delete tour: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error(`Failed to delete tour: ${message}`);
       console.error('Error deleting tour:', err);
     }
   };
