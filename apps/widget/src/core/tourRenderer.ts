@@ -15,6 +15,19 @@ export class TourRenderer {
   private scrollHandler: (() => void) | null = null;
   private onFinish: () => void;
 
+  /**
+   * Cancel any active GSAP tweens to avoid lingering animations when skipping.
+   */
+  private clearAnimations(): void {
+    if (this.highlightedElement) {
+      gsap.killTweensOf(this.highlightedElement);
+    }
+    const tooltip = TooltipManager.getInstance();
+    if (tooltip) {
+      gsap.killTweensOf(tooltip);
+    }
+  }
+
   constructor(config: TourConfig, onFinish: () => void) {
     this.config = config;
     this.currentStepIndex = this.loadSavedStepIndex();
@@ -112,6 +125,7 @@ export class TourRenderer {
     const currentStep = this.config.steps[this.currentStepIndex];
     Analytics.track('step_skipped', this.config.id, currentStep?.id);
     this.clearPersistedStep();
+    this.clearAnimations();
     this.destroy();
   }
 
@@ -130,6 +144,7 @@ export class TourRenderer {
   }
 
   private removeHighlight(): void {
+    this.clearAnimations();
     if (this.highlightedElement) {
       this.highlightedElement.classList.remove(HIGHLIGHT_CLASS);
       this.highlightedElement = null;
@@ -159,6 +174,7 @@ export class TourRenderer {
   }
 
   destroy(): void {
+    this.clearAnimations();
     this.removeHighlight();
     TooltipManager.destroy();
 
