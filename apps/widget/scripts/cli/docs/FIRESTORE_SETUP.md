@@ -48,11 +48,11 @@ Each tour document has the following structure:
 5. Set the **Document ID** to match the tour's `id` field (e.g., `tour_12345`)
 6. Copy one of the tour objects from `firestore-test-tours.json` and paste the fields
 7. **Important**: Verify these fields are set:
-   - ✅ `theme`: Must be one of: `greyscale`, `blue`, `green`, `red`
-   - ✅ `status`: Must be one of: `draft`, `active`, `paused`, `archived`
-   - ✅ `allowed_domains`: Array with at least one domain
-   - ✅ `min_steps`: Number (default: 5)
-   - ✅ `steps`: Array with at least `min_steps` items
+   - [Verified] `theme`: Must be one of: `greyscale`, `blue`, `green`, `red`
+   - [Verified] `status`: Must be one of: `draft`, `active`, `paused`, `archived`
+   - [Verified] `allowed_domains`: Array with at least one domain
+   - [Verified] `min_steps`: Number (default: 5)
+   - [Verified] `steps`: Array with at least `min_steps` items
 8. Click **Save**
 
 ### Option 2: Firebase CLI (Advanced)
@@ -216,7 +216,7 @@ service cloud.firestore {
 }
 ```
 
-**⚠️ Warning:** These rules are permissive for development. Tighten them for production!
+**Warning:** These rules are permissive for development. Tighten them for production!
 
 ## Verification
 
