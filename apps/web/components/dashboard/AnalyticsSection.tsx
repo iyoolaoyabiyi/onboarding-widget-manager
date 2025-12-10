@@ -94,7 +94,7 @@ export default function AnalyticsSection({ tourId }: Props) {
                 <span>{views.toLocaleString()}</span>
               </div>
               <div className="h-2 rounded-full bg-white/10">
-                <div className="h-full rounded-full bg-linear-to-r from-[#00FF9C] to-[#0070F3]" style={{ width: "82%" }} />
+                <div className="h-full rounded-full bg-linear-to-r from-[#00FF9C] to-[#0070F3]" style={{ width: views > 0 ? "100%" : "0%" }} />
               </div>
 
               <div className="flex items-center justify-between text-sm text-gray-300">
@@ -102,7 +102,7 @@ export default function AnalyticsSection({ tourId }: Props) {
                 <span>{completions.toLocaleString()} ({completionRate.toFixed(1)}%)</span>
               </div>
               <div className="h-2 rounded-full bg-white/10">
-                <div className="h-full rounded-full bg-linear-to-r from-[#0070F3] to-[#00FF9C]" style={{ width: `${completionRate}%` }} />
+                <div className="h-full rounded-full bg-linear-to-r from-[#0070F3] to-[#00FF9C]" style={{ width: `${Math.min(completionRate, 100)}%` }} />
               </div>
             </div>
 
@@ -137,7 +137,7 @@ export default function AnalyticsSection({ tourId }: Props) {
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm text-gray-300">
                 {recentEvents.slice(0, 12).map((event, index) => (
-                  <div key={`${event.event_id || index}`} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs break-all">
+                  <div key={`${event.tour_id}-${event.step}-${event.action}-${index}`} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs break-all">
                     {`{ "tour": "${event.tour_id.substring(0, 8)}", "step": ${event.step}, "action": "${event.action}" }`}
                   </div>
                 ))}

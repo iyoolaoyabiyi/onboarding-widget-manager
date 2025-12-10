@@ -144,6 +144,10 @@ export class TourRenderer {
     window.addEventListener('scroll', this.scrollHandler);
   }
 
+  getTotalSteps(): number {
+    return this.config.steps.length;
+  }
+
   private reposition(): void {
     if (!this.highlightedElement) return;
 

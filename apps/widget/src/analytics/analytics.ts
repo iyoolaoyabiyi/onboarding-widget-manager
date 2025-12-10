@@ -28,7 +28,7 @@ export class Analytics {
   /**
    * Initialize analytics with tour info and create session
    */
-  static async initializeSession(tourId: string, totalSteps: number): Promise<void> {
+  static async initializeSession(tourId: string): Promise<void> {
     this.tourId = tourId;
     const visitorId = VisitorTracker.getVisitorId();
 
@@ -70,9 +70,7 @@ export class Analytics {
     }
 
     // Session expired or not found, create new one
-    const tourData = document.querySelector('script[data-tour-id]');
-    const totalSteps = tourData ? parseInt(tourData.getAttribute('data-total-steps') || '5', 10) : 5;
-    await this.initializeSession(tourId, totalSteps);
+    await this.initializeSession(tourId);
   }
 
   static track(

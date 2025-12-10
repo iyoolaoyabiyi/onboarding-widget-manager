@@ -11,7 +11,13 @@ const DASHBOARD_TARGETS = ["#create-tour-section", "#tour-list", "#tour-editor"]
 
 declare global {
   interface Window {
-    OnboardingTour?: { init?: () => Promise<void> };
+    OnboardingTour?: {
+      init?: (config?: unknown) => Promise<void>;
+      next?: () => void;
+      back?: () => void;
+      skip?: () => void;
+      stop?: () => void;
+    };
   }
 }
 

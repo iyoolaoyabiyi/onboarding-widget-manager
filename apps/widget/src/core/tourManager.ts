@@ -59,9 +59,13 @@ export class TourManager {
       StyleManager.ensureStyles(tourConfig.theme);
 
       // Create renderer and start tour
-      this.renderer = new TourRenderer(tourConfig, () => {
+      this.renderer = new TourRenderer(tourConfig, async () => {
         this.markCompleted(tourConfig.id);
-        this.cleanup();
+        const totalSteps = this.renderer?.getTotalSteps?.() || tourConfig.steps.length;
+        await Analytics.finalizeSession(totalSteps).catch((error) => {
+          console.warn('Failed to finalize session:', error);
+        });
+        await this.cleanup();
       });
       this.renderer.setupEventListeners();
       this.renderer.renderStep(this.renderer.getCurrentStepIndex());
@@ -106,8 +110,6 @@ export class TourManager {
 
   static async cleanup(): Promise<void> {
     if (this.renderer) {
-      const totalSteps = this.renderer.getTotalSteps?.() || 5;
-      await Analytics.finalizeSession(totalSteps);
       this.renderer.destroy();
       this.renderer = null;
     }
