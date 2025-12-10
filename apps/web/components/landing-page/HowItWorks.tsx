@@ -59,7 +59,7 @@ export default function HowItWorks() {
     <motion.div
       ref={sectionRef}
       style={{ y, opacity }}
-      className="relative py-20 md:py-32 overflow-hidden"
+      className="relative py-12 md:py-20 lg:py-32 overflow-hidden"
       id="how-it-works"
     >
       {/* Background Elements */}
@@ -70,16 +70,16 @@ export default function HowItWorks() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-20">
+        <div className="text-center mb-10 md:mb-16 lg:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-800 bg-gray-900/50 mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-gray-800 bg-gray-900/50 mb-4 md:mb-6"
           >
-            <CheckCircle className="w-4 h-4 text-blue-400" />
-            <span className="text-sm font-medium text-gray-300">
+            <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-blue-400" />
+            <span className="text-xs md:text-sm font-medium text-gray-300">
               Simple Integration
             </span>
           </motion.div>
@@ -89,10 +89,10 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6"
           >
             <span className="block text-gray-100">Get started in</span>
-            <span className="block mt-2 bg-linear-to-r from-blue-400 via-blue-300 to-blue-400 bg-clip-text text-transparent">
+            <span className="block mt-1 md:mt-2 bg-linear-to-r from-blue-400 via-blue-300 to-blue-400 bg-clip-text text-transparent">
               four simple steps
             </span>
           </motion.h2>
@@ -102,15 +102,15 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="text-lg text-gray-400 max-w-2xl mx-auto"
+            className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto"
           >
             Integrate beautiful onboarding tours in minutes with our streamlined
             workflow.
           </motion.p>
         </div>
 
-        {/* Circular Carousel */}
-        <div className="relative">
+        {/* Desktop Circular Carousel (hidden on mobile) */}
+        <div className="hidden lg:block relative">
           <div className="flex justify-center items-center min-h-[700px] relative">
             <motion.div
               className="relative w-full max-w-3xl aspect-square"
@@ -152,8 +152,8 @@ export default function HowItWorks() {
 
               {/* Orbiting Steps */}
               {steps.map((step, index) => {
-                const angle = index * 90 - 90; // Start from top, 90 degrees apart
-                const radius = 250; // Distance from center
+                const angle = index * 90 - 90;
+                const radius = 250;
 
                 return (
                   <motion.div
@@ -252,34 +252,78 @@ export default function HowItWorks() {
               />
             </motion.div>
           </div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            viewport={{ once: true }}
-            className="mt-16 text-center"
-          >
-            <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-xl border border-gray-800 bg-linear-to-br from-gray-900/50 to-gray-900/30 backdrop-blur-sm">
-              <div className="text-left">
-                <h4 className="text-lg font-semibold text-gray-100 mb-1">
-                  Ready to get started?
-                </h4>
-                <p className="text-gray-400 text-sm">
-                  Create your first tour in minutes
-                </p>
-              </div>
-              <a
-                href="/sign-up"
-                className="group inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20"
-              >
-                Try It Free
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          </motion.div>
         </div>
+
+        {/* Mobile Steps List (shown on mobile) */}
+        <div className="lg:hidden">
+          <div className="space-y-4">
+            {steps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="p-4 rounded-xl border-2 border-gray-800 bg-gray-900/50 backdrop-blur-sm"
+              >
+                <div className="flex items-start gap-4">
+                  {/* Step Number */}
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-600 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">
+                      {step.number}
+                    </div>
+                    {index === 0 && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-gray-950 animate-pulse" />
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className={`w-10 h-10 rounded-lg bg-linear-to-br ${step.color} flex items-center justify-center`}
+                      >
+                        <div className="text-blue-400">{step.icon}</div>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-100">
+                        {step.title}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-400">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          viewport={{ once: true }}
+          className="mt-10 md:mt-16 text-center"
+        >
+          <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-4 md:p-6 rounded-xl border border-gray-800 bg-linear-to-br from-gray-900/50 to-gray-900/30 backdrop-blur-sm">
+            <div className="text-center sm:text-left">
+              <h4 className="text-base md:text-lg font-semibold text-gray-100 mb-1">
+                Ready to get started?
+              </h4>
+              <p className="text-gray-400 text-xs md:text-sm">
+                Create your first tour in minutes
+              </p>
+            </div>
+            <a
+              href="/sign-up"
+              className="group inline-flex items-center gap-2 px-5 py-2.5 md:px-6 md:py-3 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20"
+            >
+              Try It Free
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );

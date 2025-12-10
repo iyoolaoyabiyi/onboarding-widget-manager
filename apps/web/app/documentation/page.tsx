@@ -114,10 +114,6 @@ export default function Documentation() {
                   <FiChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   Step Properties
                 </a>
-                <a href="#methods" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg transition-colors group">
-                  <FiChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Methods
-                </a>
               </nav>
 
               <nav className="space-y-1">
@@ -129,10 +125,6 @@ export default function Documentation() {
                 <a href="#faq" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg transition-colors group">
                   <FiChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   FAQ
-                </a>
-                <a href="#migration" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg transition-colors group">
-                  <FiChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Migration
                 </a>
               </nav>
             </div>
