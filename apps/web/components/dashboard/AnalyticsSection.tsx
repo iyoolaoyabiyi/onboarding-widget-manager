@@ -136,8 +136,8 @@ export default function AnalyticsSection({ tourId }: Props) {
               <p className="text-sm text-gray-400">No recent events</p>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm text-gray-300">
-                {recentEvents.slice(0, 12).map((event) => (
-                  <div key={`${event.tour_id}-${event.step}-${event.action}`} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs break-all">
+                {recentEvents.slice(0, 12).map((event, index) => (
+                  <div key={`${event.event_id || index}`} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs break-all">
                     {`{ "tour": "${event.tour_id.substring(0, 8)}", "step": ${event.step}, "action": "${event.action}" }`}
                   </div>
                 ))}
