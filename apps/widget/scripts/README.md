@@ -1,59 +1,108 @@
-# scripts/
+# Widget CLI Management
 
-## import-test-tours.js
+This directory contains the Tour Manager CLI and all related documentation, samples, and utilities.
 
-Import test tours from `firestore-test-tours.json` into Firestore.
+## Directory Structure
 
-### Setup
+```
+scripts/
+├── tour.js                 # Main entry point (wrapper)
+├── cli/
+│   ├── tour-manager.js     # CLI implementation
+│   ├── output.js           # Terminal formatting utilities
+│   ├── firebase.js         # Firebase initialization
+│   ├── validators.js       # Tour data validation
+│   ├── file-utils.js       # File I/O operations
+│   ├── docs/               # CLI documentation
+│   │   ├── CLI_README.md           # Comprehensive CLI guide
+│   │   ├── FIRESTORE_SETUP.md      # Firebase setup instructions
+│   │   ├── FIRESTORE_RULES.md      # Security rules documentation
+│   │   └── TOUR_MANAGER_GUIDE.md   # Quick reference guide
+│   └── samples/            # Sample files and templates
+│       ├── tour-template.json      # Tour creation template
+│       ├── firestore-test-tours.json # Sample test tours
+│       └── firestore.rules         # Firestore security rules
+└── README.md               # This file
+```
 
-1. **Get a service account key:**
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Select **onboarding-tour-app** project
-   - Click **Project Settings** (gear icon)
-   - Go to **Service Accounts** tab
-   - Click **Generate New Private Key**
-   - Save the downloaded JSON as `serviceAccountKey.json` in `apps/widget/`
+## Quick Start
 
-2. **Or use Firebase CLI:**
-   ```bash
-   firebase login
-   firebase use onboarding-tour-app
-   ```
-
-### Usage
-
+### List all tours
 ```bash
-# From apps/widget directory
-node scripts/import-test-tours.js
+node scripts/tour.js list
 ```
 
-The script will:
-- ✓ Read tours from `firestore-test-tours.json`
-- ✓ Create documents in the `tours` Firestore collection
-- ✓ Report success/failure for each tour
-- ✓ Print next steps for testing
-
-### Example Output
-
-```
-Importing 3 test tours to Firestore...
-
-✓ Created tour: tour_12345 — "New User Onboarding"
-✓ Created tour: tour_feature_intro — "Feature Introduction Tour"
-✓ Created tour: tour_custom_template — "Custom Template Tour"
-
-✓ Import complete!
-  Success: 3/3
-
-Next steps:
-  1. Start the widget dev server:
-     cd apps/widget && pnpm dev
-  2. Visit http://localhost:5173/public/embed-demo.html
-  3. Check the browser console for: "Loaded tour config from Firestore"
+### Create a new tour
+```bash
+node scripts/tour.js create scripts/cli/samples/tour-template.json
 ```
 
-### Troubleshooting
+### View analytics for a tour
+```bash
+node scripts/tour.js analytics tour_12345
+```
 
-- **"serviceAccountKey.json not found"**: Download from Firebase Console > Project Settings > Service Accounts
-- **"Failed to initialize Firebase"**: Ensure you've logged in with `firebase login` and set the project with `firebase use onboarding-tour-app`
-- **"No tours found"**: Check that `firestore-test-tours.json` is in the correct location
+### Backup all tours
+```bash
+node scripts/tour.js backup
+```
+
+## Documentation
+
+Full documentation is available in `scripts/cli/docs/`:
+
+- **[CLI_README.md](./cli/docs/CLI_README.md)** - Comprehensive guide with all commands
+- **[FIRESTORE_SETUP.md](./cli/docs/FIRESTORE_SETUP.md)** - Firebase configuration
+- **[FIRESTORE_RULES.md](./cli/docs/FIRESTORE_RULES.md)** - Security rules reference
+- **[TOUR_MANAGER_GUIDE.md](./cli/docs/TOUR_MANAGER_GUIDE.md)** - Quick reference
+
+## Sample Files
+
+Example files are in `scripts/cli/samples/`:
+
+- **tour-template.json** - Template for creating new tours
+- **firestore-test-tours.json** - Sample tours for testing
+- **firestore.rules** - Firestore security rules to deploy
+
+## Commands Overview
+
+| Command | Purpose |
+|---------|---------|
+| `list` | List all tours |
+| `get <tourId>` | Get tour details |
+| `create <file>` | Create new tour |
+| `update <tourId> <file>` | Update tour |
+| `delete <tourId>` | Delete tour |
+| `import <file>` | Bulk import tours |
+| `analytics <tourId>` | View tour analytics |
+| `backup` | Backup all tours |
+| `deploy-rules` | Deploy Firestore rules |
+| `help` | Show help |
+
+## Module Architecture
+
+The CLI is built with separated utility modules for better maintainability:
+
+- **output.js** - Terminal formatting (colors, tables, logging)
+- **firebase.js** - Firebase Admin SDK initialization
+- **validators.js** - Tour data validation with detailed error messages
+- **file-utils.js** - File I/O with backup and restore support
+
+## Setup
+
+1. Ensure Firebase service account key is configured (see [FIRESTORE_SETUP.md](./cli/docs/FIRESTORE_SETUP.md))
+2. Install dependencies: `pnpm install`
+3. Run: `node scripts/tour.js help`
+
+## Environment Variables
+
+Required for Firebase Admin SDK:
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_PRIVATE_KEY`
+- `FIREBASE_CLIENT_EMAIL`
+
+Or place `serviceAccountKey.json` in `apps/widget/` directory.
+
+## Troubleshooting
+
+See [FIRESTORE_SETUP.md](./cli/docs/FIRESTORE_SETUP.md) for common issues and solutions.

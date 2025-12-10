@@ -1,0 +1,52 @@
+{
+  "id": "tour_example",
+  "name": "Example Tour",
+  "description": "A sample tour demonstrating the widget features",
+  "owner_id": "user_demo",
+  "allowed_domains": ["localhost", "example.com", "app.example.com"],
+  "theme": "blue",
+  "avatar_enabled": false,
+  "status": "active",
+  "steps": [
+    {
+      "id": "step_01",
+      "order": 1,
+      "target_element": "#welcome-section",
+      "title": "Welcome!",
+      "content": "Let's take a quick tour of the main features.",
+      "position": "bottom"
+    },
+    {
+      "id": "step_02",
+      "order": 2,
+      "target_element": "#navigation",
+      "title": "Navigation Bar",
+      "content": "Use this to access different sections of the application.",
+      "position": "bottom"
+    },
+    {
+      "id": "step_03",
+      "order": 3,
+      "target_element": "#main-content",
+      "title": "Main Content Area",
+      "content": "This is where you'll spend most of your time working.",
+      "position": "right"
+    },
+    {
+      "id": "step_04",
+      "order": 4,
+      "target_element": "#settings-button",
+      "title": "Settings",
+      "content": "Customize your experience here.",
+      "position": "left"
+    },
+    {
+      "id": "step_05",
+      "order": 5,
+      "target_element": "#help-button",
+      "title": "Need Help?",
+      "content": "Click here anytime you need assistance.",
+      "position": "top"
+    }
+  ]
+}
