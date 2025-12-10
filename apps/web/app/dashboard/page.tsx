@@ -72,17 +72,6 @@ export default function Dashboard() {
   const [completions, setCompletions] = useState<number>(0);
   const [showCreate, setShowCreate] = useState<boolean>(false);
 
-  const handleSeedData = () => {
-    setTours(mockTours);
-    setSteps(mockSteps);
-    setMetrics(mockMetrics);
-    setDropOff(mockDropOff);
-    setRecentEvents(mockEvents);
-    setViews(1200);
-    setCompletions(780);
-    setShowCreate(false);
-  };
-
   const activeTour = tours[0];
 
   const widgetSrc = process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
@@ -90,39 +79,54 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-10 flex flex-col items-center justify-center min-h-screen">
-        {!hasTours && <OnboardingEmpty onCreate={() => setShowCreate(true)} />}
-
-        {hasTours && (
-          <>
+      {!hasTours ? (
+        <div className="flex items-center justify-center min-h-screen px-6 py-10">
+          <div className="w-full max-w-6xl">
+            <OnboardingEmpty onCreate={() => setShowCreate(true)} />
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
           <DashboardHeader onCreate={() => setShowCreate(true)} />
-            <MetricsGrid metrics={metrics} />
+          <MetricsGrid metrics={metrics} />
 
-            <section className="grid gap-6 lg:grid-cols-3">
-              <TourEditor
-                steps={steps}
-                defaultTourName={activeTour?.name}
-                defaultBaseUrl={activeTour?.baseUrl}
-                defaultThemeColor={activeTour?.color}
-                defaultCtaCopy="Take a quick tour?"
-              />
-              <div className="space-y-4">
-                <ToursPanel tours={tours} />
-                <IntegrationSnippet widgetSrc={widgetSrc} tourId="tour_888" hasTour={!!activeTour} />
-              </div>
-            </section>
-
-            <AnalyticsSection
-              views={views}
-              completions={completions}
-              dropOff={dropOff}
-              recentEvents={recentEvents}
+          <section className="grid gap-6 lg:grid-cols-3">
+            <TourEditor
+              steps={steps}
+              defaultTourName={activeTour?.name}
+              defaultBaseUrl={activeTour?.baseUrl}
+              defaultThemeColor={activeTour?.color}
+              defaultCtaCopy="Take a quick tour?"
             />
-          </>
-        )}
-      </div>
+            <div className="space-y-4">
+              <ToursPanel tours={tours} />
+              <IntegrationSnippet widgetSrc={widgetSrc} tourId="tour_888" hasTour={!!activeTour} />
+            </div>
+          </section>
 
-      <CreateTourModal open={showCreate} onClose={() => setShowCreate(false)} onSave={handleSeedData} />
+          <AnalyticsSection
+            views={views}
+            completions={completions}
+            dropOff={dropOff}
+            recentEvents={recentEvents}
+          />
+        </div>
+      )}
+
+      <CreateTourModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        onSave={(tourData: { tour: Tour; steps: Step[] }) => {
+          setTours([tourData.tour]);
+          setSteps(tourData.steps);
+          setMetrics(mockMetrics);
+          setDropOff(mockDropOff);
+          setRecentEvents(mockEvents);
+          setViews(1200);
+          setCompletions(780);
+          setShowCreate(false);
+        }}
+      />
     </div>
   );
 }
