@@ -9,7 +9,6 @@ import React from "react";
 export default function Hero() {
   const { user, loading } = useAuth();
 
-  // -------------------- WORD ROTATION ANIMATION --------------------
   const rotatingPhrases = [
     "Build Interactive",
     "Build Beautiful", 
@@ -25,9 +24,7 @@ export default function Hero() {
 
     return () => clearInterval(interval);
   }, []);
-  // ----------------------------------------------------------
-
-  // -------------------- TYPING ANIMATION --------------------
+  
   const fullCode = `// Initialize tour in seconds
 Tour.init({
   steps: [
@@ -63,24 +60,23 @@ Tour.init({
 
     return () => clearInterval(cursorInterval);
   }, []);
-  // ----------------------------------------------------------
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-20" />
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -top-40 -left-40 w-80 h-80 bg-linear-to-br from-blue-600/20 to-blue-400/10 rounded-full blur-3xl"
+          className="absolute -top-40 -left-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-600/20 to-blue-400/10 rounded-full blur-3xl"
           animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         />
         <motion.div
-          className="absolute -bottom-40 -right-40 w-80 h-80 bg-linear-to-br from-blue-500/20 to-blue-600/10 rounded-full blur-3xl"
+          className="absolute -bottom-40 -right-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-500/20 to-blue-600/10 rounded-full blur-3xl"
           animate={{ x: [0, -100, 0], y: [0, 50, 0] }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-linear-to-br from-blue-700/10 to-blue-500/5 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-linear-to-br from-blue-700/10 to-blue-500/5 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -103,12 +99,12 @@ Tour.init({
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto text-center py-20">
+      <div className="relative z-10 lg:max-w-7xl md:max-w-5xl max-w-xl px-20 mx-auto text-center py-12 sm:py-16 lg:py-20">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 sm:mb-6 px-2"
         >
           <AnimatePresence mode="wait">
             <motion.span
@@ -131,7 +127,7 @@ Tour.init({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto mb-10 px-4"
+          className="text-base sm:text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-8 sm:mb-10 px-4"
         >
           A lightweight, customizable tour library that helps users discover your
           product's features with beautiful, interactive walkthroughs.
@@ -142,19 +138,19 @@ Tour.init({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-12"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto mb-8 sm:mb-12 px-4"
         >
           {[
-            { icon: <Code className="w-5 h-5" />, text: "Simple Integration" },
-            { icon: <Play className="w-5 h-5" />, text: "Interactive Steps" },
-            { icon: <Zap className="w-5 h-5" />, text: "Lightweight & Fast" }
+            { icon: <Code className="w-4 h-4 sm:w-5 sm:h-5" />, text: "Simple Integration" },
+            { icon: <Play className="w-4 h-4 sm:w-5 sm:h-5" />, text: "Interactive Steps" },
+            { icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5" />, text: "Lightweight & Fast" }
           ].map((feature, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 justify-center px-4 py-3 rounded-lg border border-gray-800 bg-gray-900/30"
+              className="flex items-center gap-2 justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-800 bg-gray-900/30"
             >
               <div className="text-blue-400">{feature.icon}</div>
-              <span className="text-sm text-gray-300">{feature.text}</span>
+              <span className="text-xs sm:text-sm text-gray-300">{feature.text}</span>
             </div>
           ))}
         </motion.div>
@@ -165,12 +161,12 @@ Tour.init({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4"
           >
             {!user ? (
               <Link
                 href="/sign-up"
-                className="group inline-flex items-center gap-2 px-8 py-3.5 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20"
+                className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center"
               >
                 Get Started Free
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -178,7 +174,7 @@ Tour.init({
             ) : (
               <Link
                 href="/dashboard"
-                className="group inline-flex items-center gap-2 px-8 py-3.5 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20"
+                className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center"
               >
                 Go to Dashboard
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -187,7 +183,7 @@ Tour.init({
 
             <Link
               href="/documentation"
-              className="inline-flex items-center gap-2 px-8 py-3.5 border border-gray-700 text-gray-300 font-medium rounded-lg hover:border-gray-600 hover:text-gray-200 hover:bg-gray-900/50 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 border border-gray-700 text-gray-300 font-medium rounded-lg hover:border-gray-600 hover:text-gray-200 hover:bg-gray-900/50 transition-all duration-300 w-full sm:w-auto justify-center"
             >
               View Documentation
             </Link>
@@ -199,17 +195,17 @@ Tour.init({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-16 max-w-3xl mx-auto"
+          className="mt-12 sm:mt-16 max-w-3xl mx-auto px-4"
         >
-          <div className="text-left bg-gray-900/50 border border-gray-800 rounded-xl p-6 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-gray-400 ml-auto">tour.js</span>
+          <div className="text-left bg-gray-900/50 border border-gray-800 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500" />
+              <span className="text-xs sm:text-sm text-gray-400 ml-auto">tour.js</span>
             </div>
 
-            <pre className="text-sm text-gray-300 overflow-x-auto">
+            <pre className="text-xs sm:text-sm text-gray-300 overflow-x-auto">
               <code>
                 {displayed}
                 {showCursor ? "|" : " "}
@@ -223,7 +219,7 @@ Tour.init({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-16 pt-8 border-t border-gray-800/50 grid grid-cols-3 gap-8 max-w-2xl mx-auto"
+          className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800/50 grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-2xl mx-auto px-4"
         >
           {[
             { value: "2kb", label: "Bundle Size" },
@@ -231,8 +227,8 @@ Tour.init({
             { value: "0", label: "Dependencies" }
           ].map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-2xl font-bold text-gray-100">{stat.value}</div>
-              <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-100">{stat.value}</div>
+              <div className="text-xs sm:text-sm text-gray-400 mt-1">{stat.label}</div>
             </div>
           ))}
         </motion.div>
