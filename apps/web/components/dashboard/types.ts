@@ -6,7 +6,7 @@ export type Tour = {
   completion: number;
   status: string;
   updated: string;
-  color: string;
+  theme: 'greyscale' | 'blue' | 'green' | 'red';
 };
 
 export type Step = {

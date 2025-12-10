@@ -3,10 +3,18 @@
     {
       "id": "tour_12345",
       "name": "New User Onboarding",
-      "theme_color": "#3498db",
+      "description": "Guide new users through the dashboard setup",
+      "theme": "blue",
+      "allowed_domains": ["localhost", "example.com"],
       "owner_id": "user_demo",
-      "base_url": "http://localhost",
+      "status": "active",
+      "avatar_enabled": false,
+      "min_steps": 5,
+      "total_views": 0,
+      "total_completions": 0,
+      "completion_rate": 0,
       "created_at": "2024-12-09T12:00:00Z",
+      "updated_at": "2024-12-09T12:00:00Z",
       "steps": [
         {
           "id": "step_01",
@@ -53,10 +61,18 @@
     {
       "id": "tour_feature_intro",
       "name": "Feature Introduction Tour",
-      "theme_color": "#27ae60",
+      "description": "Introduce users to advanced features",
+      "theme": "green",
+      "allowed_domains": ["example.com", "features.example.com"],
       "owner_id": "user_demo",
-      "base_url": "https://example.com/features",
+      "status": "active",
+      "avatar_enabled": false,
+      "min_steps": 5,
+      "total_views": 0,
+      "total_completions": 0,
+      "completion_rate": 0,
       "created_at": "2024-12-09T12:30:00Z",
+      "updated_at": "2024-12-09T12:30:00Z",
       "steps": [
         {
           "id": "step_f1",
@@ -103,10 +119,18 @@
     {
       "id": "tour_custom_template",
       "name": "Custom Template Tour",
-      "theme_color": "#e74c3c",
+      "description": "Learn how to customize tour templates",
+      "theme": "red",
+      "allowed_domains": ["custom.example.com"],
       "owner_id": "user_demo",
-      "base_url": "https://custom.example.com",
+      "status": "active",
+      "avatar_enabled": false,
+      "min_steps": 5,
+      "total_views": 0,
+      "total_completions": 0,
+      "completion_rate": 0,
       "created_at": "2024-12-09T13:00:00Z",
+      "updated_at": "2024-12-09T13:00:00Z",
       "steps": [
         {
           "id": "step_c1",

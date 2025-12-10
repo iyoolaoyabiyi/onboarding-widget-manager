@@ -171,7 +171,6 @@ Display full usage information.
 - `theme` (string): Theme name (`blue`, `green`, `red`, `greyscale`)
 - `avatar_enabled` (boolean): Enable 3D avatar assistant
 - `status` (string): Tour status (`draft`, `active`, `paused`, `archived`)
-- `base_url` (string): Base URL for the tour
 
 ### Step Object
 Each step requires:

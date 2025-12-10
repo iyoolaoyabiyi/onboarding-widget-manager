@@ -374,10 +374,18 @@ Tour JSON Format:
   {
     "id": "tour_unique_id",
     "name": "Tour Name",
-    "theme_color": "#3498db",
+    "description": "Tour description",
+    "theme": "blue",
+    "allowed_domains": ["example.com"],
     "owner_id": "user_123",
-    "base_url": "https://example.com",
+    "status": "active",
     "avatar_enabled": false,
+    "min_steps": 5,
+    "total_views": 0,
+    "total_completions": 0,
+    "completion_rate": 0,
+    "created_at": "2024-12-10T00:00:00Z",
+    "updated_at": "2024-12-10T00:00:00Z",
     "steps": [
       {
         "id": "step_01",
@@ -385,7 +393,9 @@ Tour JSON Format:
         "target_element": "#element-id",
         "title": "Step Title",
         "content": "Step description",
-        "position": "bottom"
+        "position": "bottom",
+        "created_at": "2024-12-10T00:00:00Z",
+        "updated_at": "2024-12-10T00:00:00Z"
       }
       // ... minimum 5 steps required
     ]

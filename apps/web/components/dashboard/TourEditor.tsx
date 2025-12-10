@@ -1,10 +1,20 @@
 import { Step } from "./types";
 
+// Theme definitions matching widget
+const THEMES = {
+  greyscale: { bg: '#1a1a1a', name: 'Greyscale' },
+  blue: { bg: '#1e3a8a', name: 'Blue' },
+  green: { bg: '#14532d', name: 'Green' },
+  red: { bg: '#7f1d1d', name: 'Red' },
+} as const;
+
+type ThemeName = keyof typeof THEMES;
+
 type Props = {
   steps: Step[];
   defaultTourName?: string;
   defaultBaseUrl?: string;
-  defaultThemeColor?: string;
+  defaultTheme?: ThemeName;
   defaultCtaCopy?: string;
 };
 
@@ -12,7 +22,7 @@ export default function TourEditor({
   steps,
   defaultTourName,
   defaultBaseUrl,
-  defaultThemeColor,
+  defaultTheme = 'blue',
   defaultCtaCopy,
 }: Props) {
   const hasSteps = steps.length > 0;
@@ -47,16 +57,22 @@ export default function TourEditor({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="text-sm text-gray-300">Theme Color</span>
+          <span className="text-sm text-gray-300">Theme</span>
           <div className="flex items-center gap-3">
+            <select
+              className="flex-1 px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white"
+              defaultValue={defaultTheme}
+            >
+              {(Object.entries(THEMES) as Array<[ThemeName, typeof THEMES[ThemeName]]>).map(([key, { name }]) => (
+                <option key={key} value={key} className="bg-black text-white">
+                  {name}
+                </option>
+              ))}
+            </select>
             <div
-              className="h-10 w-10 rounded-lg border border-white/10"
-              style={{ background: defaultThemeColor ?? "transparent" }}
-            />
-            <input
-              className="flex-1 px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30"
-              defaultValue={defaultThemeColor ?? ""}
-              placeholder="#0070F3"
+              className="h-10 w-10 rounded-lg border border-white/10 shrink-0"
+              style={{ backgroundColor: THEMES[defaultTheme].bg }}
+              title={THEMES[defaultTheme].name}
             />
           </div>
         </label>

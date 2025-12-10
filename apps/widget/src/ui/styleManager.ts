@@ -1,4 +1,5 @@
-import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX, THEME_DEFINITIONS } from '../config/constants';
+import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX } from '../config/constants';
+import { ThemeManager } from '../themes/themeManager';
 import type { ThemeName } from '../types/types';
 
 /**
@@ -21,7 +22,7 @@ export class StyleManager {
   }
 
   private static generateStyles(themeName: ThemeName): string {
-    const theme = THEME_DEFINITIONS[themeName];
+    const theme = ThemeManager.getTheme(themeName);
     return `
       .tour-highlighted-element {
         position: relative;

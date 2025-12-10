@@ -162,11 +162,20 @@ Then create it in Firestore using one of the methods above.
 interface TourConfig {
   id: string;                           // Unique tour ID (used as document ID in Firestore)
   name: string;                         // Display name
-  theme_color: string;                  // Hex color for highlights
+  description?: string;                 // (Optional) Tour description
+  theme: 'greyscale' | 'blue' | 'green' | 'red';  // Named theme
+  allowed_domains: string[];            // Domain whitelist for security
+  owner_id: string;                     // Creator's user ID
+  status: 'draft' | 'active' | 'paused' | 'archived';  // Tour status
+  avatar_enabled: boolean;              // Show optional avatar
+  min_steps: number;                    // Minimum steps required
+  total_views: number;                  // Total views (denormalized)
+  total_completions: number;            // Total completions (denormalized)
+  completion_rate: number;              // Completion rate % (denormalized)
   steps: TourStep[];                    // Array of tour steps (minimum 5)
-  owner_id?: string;                    // (Optional) Creator's user ID
-  base_url?: string;                    // (Optional) Where this tour will be deployed
-  created_at?: string;                  // (Optional) ISO timestamp
+  created_at: string;                   // ISO timestamp
+  updated_at: string;                   // ISO timestamp
+  last_viewed_at?: string;              // (Optional) Last view timestamp
 }
 
 interface TourStep {
@@ -175,7 +184,13 @@ interface TourStep {
   target_element: string;               // CSS selector (e.g., "#my-button")
   title: string;                        // Step title
   content: string;                      // Step description
-  position: "top" | "bottom" | "left" | "right";  // Tooltip position
+  position: "top" | "bottom" | "left" | "right" | "center";  // Tooltip position
+  image_url?: string;                   // (Optional) Step image URL
+  video_url?: string;                   // (Optional) Step video URL
+  cta_text?: string;                    // (Optional) Call-to-action text
+  cta_url?: string;                     // (Optional) Call-to-action URL
+  created_at?: string;                  // (Optional) ISO timestamp
+  updated_at?: string;                  // (Optional) ISO timestamp
 }
 ```
 

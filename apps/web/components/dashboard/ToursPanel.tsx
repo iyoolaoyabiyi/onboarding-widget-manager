@@ -1,5 +1,13 @@
 import { Tour } from "./types";
 
+// Theme color mappings for display
+const THEME_COLORS: Record<string, string> = {
+  greyscale: '#1a1a1a',
+  blue: '#1e3a8a',
+  green: '#14532d',
+  red: '#7f1d1d',
+};
+
 type Props = {
   tours: Tour[];
 };
@@ -22,7 +30,7 @@ export default function ToursPanel({ tours }: Props) {
             <div key={tour.id} className="rounded-xl border border-white/10 bg-black/30 p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="h-3 w-3 rounded-full" style={{ background: tour.color }} />
+                  <span className="h-3 w-3 rounded-full" style={{ background: THEME_COLORS[tour.theme] }} title={tour.theme} />
                   <p className="font-semibold">{tour.name}</p>
                 </div>
                 <span className="text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10">{tour.status}</span>

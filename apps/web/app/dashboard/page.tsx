@@ -119,7 +119,7 @@ export default function Dashboard() {
                 steps={steps}
                 defaultTourName={activeTour?.name}
                 defaultBaseUrl={activeTour?.baseUrl}
-                defaultThemeColor={activeTour?.color}
+                defaultTheme={activeTour?.theme}
                 defaultCtaCopy="Take a quick tour?"
               />
               <div className="space-y-4">

@@ -3,18 +3,29 @@
 ```json
 {
   "id": "tour_12345",
-  "owner_id": "user_888", // Links to Auth Provider
+  "owner_id": "user_888",
   "name": "New User Onboarding",
-  "base_url": "https://client-website.com", // Where this tour is allowed to run
-  "theme_color": "#0070f3",
+  "description": "Guide users through the onboarding process",
+  "allowed_domains": ["client-website.com"],
+  "theme": "blue",
+  "status": "active",
+  "avatar_enabled": false,
+  "min_steps": 5,
+  "total_views": 0,
+  "total_completions": 0,
+  "completion_rate": 0,
+  "created_at": "2024-12-10T00:00:00Z",
+  "updated_at": "2024-12-10T00:00:00Z",
   "steps": [
     {
       "id": "step_01",
       "order": 1,
-      "target_element": "#signup-btn", // ID of element to highlight
+      "target_element": "#signup-btn",
       "title": "Start Here",
       "content": "Click here to create your account.",
-      "position": "bottom" // tooltip position
+      "position": "bottom",
+      "created_at": "2024-12-10T00:00:00Z",
+      "updated_at": "2024-12-10T00:00:00Z"
     },
     {
       "id": "step_02",

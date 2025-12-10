@@ -124,7 +124,7 @@ src/
    window.OnboardingTour.init({
      id: 'tour_custom',
      name: 'My Tour',
-     theme_color: '#667eea',
+     theme: 'blue',
      steps: [
        {
          id: 'step_1',
@@ -156,22 +156,37 @@ window.OnboardingTour.stop()       // Stop and cleanup
 
 ```typescript
 interface TourConfig {
-  id: string;              // Unique tour ID
-  name: string;            // Display name
-  theme_color: string;     // Hex color (e.g., '#667eea')
-  steps: TourStep[];       // Array of at least 5 steps
-  owner_id?: string;       // Optional user ID
-  base_url?: string;       // Optional allowed domain
-  created_at?: string;     // ISO timestamp
+  id: string;                          // Unique tour ID
+  name: string;                        // Display name
+  description?: string;                // Tour description
+  theme: 'blue' | 'green' | 'red' | 'greyscale';  // Named theme
+  allowed_domains: string[];           // Domain whitelist
+  owner_id: string;                    // User ID
+  status: 'draft' | 'active' | 'paused' | 'archived';
+  avatar_enabled: boolean;             // Show avatar
+  min_steps: number;                   // Minimum steps
+  total_views: number;                 // View count
+  total_completions: number;           // Completion count
+  completion_rate: number;             // Completion %
+  steps: TourStep[];                   // Array of at least 5 steps
+  created_at: string;                  // ISO timestamp
+  updated_at: string;                  // ISO timestamp
+  last_viewed_at?: string;             // Last view timestamp
 }
 
 interface TourStep {
-  id: string;              // Unique step ID (e.g., 'step_01')
-  order: number;           // Step order (1-indexed)
-  target_element: string;  // CSS selector (e.g., '#button', '.class')
-  title: string;           // Step title
-  content: string;         // Step description
-  position: 'top' | 'bottom' | 'left' | 'right';
+  id: string;                          // Unique step ID (e.g., 'step_01')
+  order: number;                       // Step order (1-indexed)
+  target_element: string;              // CSS selector (e.g., '#button', '.class')
+  title: string;                       // Step title
+  content: string;                     // Step description
+  position: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  image_url?: string;                  // Optional image
+  video_url?: string;                  // Optional video
+  cta_text?: string;                   // Call-to-action text
+  cta_url?: string;                    // Call-to-action URL
+  created_at?: string;                 // ISO timestamp
+  updated_at?: string;                 // ISO timestamp
 }
 ```
 
@@ -228,7 +243,18 @@ Located in `public/mock-tour.json` during development:
 {
   "id": "tour_demo_001",
   "name": "Welcome Tour",
-  "theme_color": "#3498db",
+  "description": "Welcome users to the product",
+  "theme": "blue",
+  "allowed_domains": ["example.com"],
+  "owner_id": "user_123",
+  "status": "active",
+  "avatar_enabled": false,
+  "min_steps": 5,
+  "total_views": 0,
+  "total_completions": 0,
+  "completion_rate": 0,
+  "created_at": "2024-12-10T00:00:00Z",
+  "updated_at": "2024-12-10T00:00:00Z",
   "steps": [
     {
       "id": "step_01",

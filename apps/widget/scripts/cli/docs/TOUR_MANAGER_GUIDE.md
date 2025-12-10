@@ -107,15 +107,24 @@ Minimum valid tour (save as `my-tour.json`):
 {
   "id": "tour_my_feature",
   "name": "My Feature Tour",
-  "theme_color": "#3498db",
+  "description": "A feature introduction tour",
+  "theme": "blue",
+  "allowed_domains": ["example.com"],
   "owner_id": "user_demo",
+  "status": "active",
   "avatar_enabled": false,
+  "min_steps": 5,
+  "total_views": 0,
+  "total_completions": 0,
+  "completion_rate": 0,
+  "created_at": "2024-12-10T00:00:00Z",
+  "updated_at": "2024-12-10T00:00:00Z",
   "steps": [
-    {"id": "s1", "order": 1, "target_element": "#nav", "title": "Navigation", "content": "Main menu", "position": "bottom"},
-    {"id": "s2", "order": 2, "target_element": "#content", "title": "Content", "content": "Main area", "position": "right"},
-    {"id": "s3", "order": 3, "target_element": "#sidebar", "title": "Sidebar", "content": "Tools here", "position": "left"},
-    {"id": "s4", "order": 4, "target_element": "#settings", "title": "Settings", "content": "Configure", "position": "top"},
-    {"id": "s5", "order": 5, "target_element": "#help", "title": "Help", "content": "Get support", "position": "bottom"}
+    {"id": "s1", "order": 1, "target_element": "#nav", "title": "Navigation", "content": "Main menu", "position": "bottom", "created_at": "2024-12-10T00:00:00Z", "updated_at": "2024-12-10T00:00:00Z"},
+    {"id": "s2", "order": 2, "target_element": "#content", "title": "Content", "content": "Main area", "position": "right", "created_at": "2024-12-10T00:00:00Z", "updated_at": "2024-12-10T00:00:00Z"},
+    {"id": "s3", "order": 3, "target_element": "#sidebar", "title": "Sidebar", "content": "Tools here", "position": "left", "created_at": "2024-12-10T00:00:00Z", "updated_at": "2024-12-10T00:00:00Z"},
+    {"id": "s4", "order": 4, "target_element": "#settings", "title": "Settings", "content": "Configure", "position": "top", "created_at": "2024-12-10T00:00:00Z", "updated_at": "2024-12-10T00:00:00Z"},
+    {"id": "s5", "order": 5, "target_element": "#help", "title": "Help", "content": "Get support", "position": "bottom", "created_at": "2024-12-10T00:00:00Z", "updated_at": "2024-12-10T00:00:00Z"}
   ]
 }
 ```
