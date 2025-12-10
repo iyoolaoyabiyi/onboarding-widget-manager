@@ -52,6 +52,9 @@ export class TourManager {
       // Load or create session
       await this.initializeSession(tourConfig.id);
 
+      // Initialize analytics with session
+      await Analytics.loadSession(tourConfig.id);
+
       // Load styles after we know the theme and that we need to run
       StyleManager.ensureStyles(tourConfig.theme);
 
@@ -90,14 +93,21 @@ export class TourManager {
   static skip(): void {
     if (this.renderer) {
       this.renderer.skip();
+      const totalSteps = this.renderer.getTotalSteps?.() || 5;
+      // Finalize analytics asynchronously without blocking
+      Analytics.finalizeSession(totalSteps).catch((error) => {
+        console.warn('Failed to finalize session on skip:', error);
+      });
       this.renderer = null;
     }
     AvatarAssistant.destroy();
     StyleManager.cleanup();
   }
 
-  static cleanup(): void {
+  static async cleanup(): Promise<void> {
     if (this.renderer) {
+      const totalSteps = this.renderer.getTotalSteps?.() || 5;
+      await Analytics.finalizeSession(totalSteps);
       this.renderer.destroy();
       this.renderer = null;
     }
