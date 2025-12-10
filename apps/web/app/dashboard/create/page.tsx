@@ -75,7 +75,7 @@ export default function CreateTourPage() {
       const tourConfig = {
         id: tourId,
         name: tourName,
-        description: description || undefined,
+        ...(description && { description }), // Only add if not empty
         theme: theme,
         allowed_domains: domains,
         owner_id: '', // Will be set by FirestoreService
@@ -93,8 +93,8 @@ export default function CreateTourPage() {
           position: step.position,
           title: step.title,
           content: step.content,
-          cta_text: step.cta_text,
-          cta_url: step.cta_url,
+          ...(step.cta_text && { cta_text: step.cta_text }),
+          ...(step.cta_url && { cta_url: step.cta_url }),
           created_at: now,
           updated_at: now,
         })),
