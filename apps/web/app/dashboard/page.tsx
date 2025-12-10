@@ -214,7 +214,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
         <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between" id="create-tour-section">
             <div>
               <h1 className="text-3xl font-bold">Dashboard</h1>
               <p className="text-gray-400 mt-2">Manage and analyze your onboarding tours</p>
@@ -241,7 +241,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid gap-6 lg:grid-cols-3">
               {/* Tour List */}
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1" id="tour-list">
                 <ToursPanelNew
                   tours={tours}
                   onSelectTour={handleSelectTour}
@@ -252,7 +252,7 @@ export default function Dashboard() {
 
               {/* Tour Editor */}
               {currentTour && (
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2" id="tour-editor">
                   <TourEditorNew
                     tour={currentTour}
                     steps={steps}
@@ -266,7 +266,7 @@ export default function Dashboard() {
 
           {/* Integration Help */}
           {currentTour && steps.length >= 5 && (
-            <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-6">
+            <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-6" id="widget-link">
               <h3 className="text-lg font-semibold text-green-400 mb-4">Ready to Deploy</h3>
               <p className="text-gray-300 mb-4">
                 Your tour is ready! Copy this script and add it to your website to start the tour:
@@ -277,7 +277,7 @@ export default function Dashboard() {
                 </code>
               </div>
               <p className="text-xs text-gray-400 mt-3">
-                Make sure {currentTour.allowed_domains.join(", ")} are added to your tour's allowed domains.
+                Make sure {currentTour.allowed_domains.join(", ")} are added to your tour&apos;s allowed domains.
               </p>
             </div>
           )}
