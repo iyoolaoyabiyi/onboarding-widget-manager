@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 
@@ -10,7 +10,14 @@ import OnboardingEmpty from "@/components/dashboard/OnboardingEmpty";
 import TourEditor from "@/components/dashboard/TourEditor";
 import ToursPanel from "@/components/dashboard/ToursPanel";
 import CreateTourModal from "@/components/dashboard/CreateTourModal";
-import { DropOffItem, EventEntry, Metric, Step, Tour } from "@/components/dashboard/types";
+import {
+  DropOffItem,
+  EventEntry,
+  Metric,
+  Step,
+  Tour,
+} from "@/components/dashboard/types";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const mockTours: Tour[] = [
   {
@@ -36,9 +43,24 @@ const mockTours: Tour[] = [
 ];
 
 const mockSteps: Step[] = [
-  { order: 1, target: "#nav-logo", text: "Welcome to the app!", position: "Bottom" },
-  { order: 2, target: "#settings-btn", text: "Configure your profile here.", position: "Left" },
-  { order: 3, target: "#chart", text: "Track your product health.", position: "Right" },
+  {
+    order: 1,
+    target: "#nav-logo",
+    text: "Welcome to the app!",
+    position: "Bottom",
+  },
+  {
+    order: 2,
+    target: "#settings-btn",
+    text: "Configure your profile here.",
+    position: "Left",
+  },
+  {
+    order: 3,
+    target: "#chart",
+    text: "Track your product health.",
+    position: "Right",
+  },
 ];
 
 const mockMetrics: Metric[] = [
@@ -74,59 +96,66 @@ export default function Dashboard() {
 
   const activeTour = tours[0];
 
-  const widgetSrc = process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
+  const widgetSrc =
+    process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
   const hasTours = tours.length > 0;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
-      {!hasTours ? (
-        <div className="flex items-center justify-center min-h-screen px-6 py-10">
-          <div className="w-full max-w-6xl">
-            <OnboardingEmpty onCreate={() => setShowCreate(true)} />
-          </div>
-        </div>
-      ) : (
-        <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
-          <DashboardHeader onCreate={() => setShowCreate(true)} />
-          <MetricsGrid metrics={metrics} />
-
-          <section className="grid gap-6 lg:grid-cols-3">
-            <TourEditor
-              steps={steps}
-              defaultTourName={activeTour?.name}
-              defaultBaseUrl={activeTour?.baseUrl}
-              defaultThemeColor={activeTour?.color}
-              defaultCtaCopy="Take a quick tour?"
-            />
-            <div className="space-y-4">
-              <ToursPanel tours={tours} />
-              <IntegrationSnippet widgetSrc={widgetSrc} tourId="tour_888" hasTour={!!activeTour} />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
+        {!hasTours ? (
+          <div className="flex items-center justify-center min-h-screen px-6 py-10">
+            <div className="w-full max-w-6xl">
+              <OnboardingEmpty onCreate={() => setShowCreate(true)} />
             </div>
-          </section>
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
+            <DashboardHeader onCreate={() => setShowCreate(true)} />
+            <MetricsGrid metrics={metrics} />
 
-          <AnalyticsSection
-            views={views}
-            completions={completions}
-            dropOff={dropOff}
-            recentEvents={recentEvents}
-          />
-        </div>
-      )}
+            <section className="grid gap-6 lg:grid-cols-3">
+              <TourEditor
+                steps={steps}
+                defaultTourName={activeTour?.name}
+                defaultBaseUrl={activeTour?.baseUrl}
+                defaultThemeColor={activeTour?.color}
+                defaultCtaCopy="Take a quick tour?"
+              />
+              <div className="space-y-4">
+                <ToursPanel tours={tours} />
+                <IntegrationSnippet
+                  widgetSrc={widgetSrc}
+                  tourId="tour_888"
+                  hasTour={!!activeTour}
+                />
+              </div>
+            </section>
 
-      <CreateTourModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        onSave={(tourData: { tour: Tour; steps: Step[] }) => {
-          setTours([tourData.tour]);
-          setSteps(tourData.steps);
-          setMetrics(mockMetrics);
-          setDropOff(mockDropOff);
-          setRecentEvents(mockEvents);
-          setViews(1200);
-          setCompletions(780);
-          setShowCreate(false);
-        }}
-      />
-    </div>
+            <AnalyticsSection
+              views={views}
+              completions={completions}
+              dropOff={dropOff}
+              recentEvents={recentEvents}
+            />
+          </div>
+        )}
+
+        <CreateTourModal
+          open={showCreate}
+          onClose={() => setShowCreate(false)}
+          onSave={(tourData: { tour: Tour; steps: Step[] }) => {
+            setTours([tourData.tour]);
+            setSteps(tourData.steps);
+            setMetrics(mockMetrics);
+            setDropOff(mockDropOff);
+            setRecentEvents(mockEvents);
+            setViews(1200);
+            setCompletions(780);
+            setShowCreate(false);
+          }}
+        />
+      </div>
+    </ProtectedRoute>
   );
 }
