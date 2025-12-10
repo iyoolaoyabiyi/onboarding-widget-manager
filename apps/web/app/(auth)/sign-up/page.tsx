@@ -42,13 +42,52 @@ export default function SignUp() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
-            <div className="w-full max-w-md">
+        <div className="relative min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
+            {/* Grid Background */}
+            <div className="absolute inset-0 w-full bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-20" />
+            
+            {/* Animated Gradient Orbs */}
+            <div className="absolute inset-0 overflow-hidden">
+                <motion.div
+                    className="absolute -top-40 -left-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-600/20 to-blue-400/10 rounded-full blur-3xl"
+                    animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div
+                    className="absolute -bottom-40 -right-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-500/20 to-blue-600/10 rounded-full blur-3xl"
+                    animate={{ x: [0, -100, 0], y: [0, 50, 0] }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-linear-to-br from-blue-700/10 to-blue-500/5 rounded-full blur-3xl"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                />
+            </div>
+
+            {/* Floating Elements */}
+            <div className="absolute inset-0 pointer-events-none">
+                {[...Array(8)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute w-2 h-2 bg-blue-500/30 rounded-full"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 2 + Math.random() * 2, delay: i * 0.2, repeat: Infinity }}
+                    />
+                ))}
+            </div>
+
+            {/* Main Content */}
+            <div className="relative z-10 w-full max-w-lg">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="backdrop-blur-sm border border-gray-800 rounded-2xl p-8 shadow-2xl"
+                    className="backdrop-blur-sm bg-gray-900/50 border border-gray-800 rounded-2xl p-8 shadow-2xl"
                 >
                     {/* Logo/Header */}
                     <div className="text-center mb-8">
@@ -66,7 +105,7 @@ export default function SignUp() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
                         onClick={handleGoogle}
-                        className="w-full cursor-pointer flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-gray-700  text-gray-300 hover:text-gray-200 hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300 mb-6"
+                        className="w-full cursor-pointer flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 hover:text-gray-200 hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300 mb-6"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -83,7 +122,7 @@ export default function SignUp() {
                             <div className="w-full border-t border-gray-800"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 /50 text-gray-500">
+                            <span className="px-4 bg-gray-900/50 text-gray-500">
                                 Or continue with email
                             </span>
                         </div>
@@ -107,7 +146,7 @@ export default function SignUp() {
                                     placeholder="John Doe"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full pl-11 pr-4 py-3 rounded-lg border border-gray-700  text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300"
+                                    className="w-full pl-11 pr-4 py-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300"
                                 />
                             </div>
                         </motion.div>
@@ -129,7 +168,7 @@ export default function SignUp() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="w-full pl-11 pr-4 py-3 rounded-lg border border-gray-700  text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300"
+                                    className="w-full pl-11 pr-4 py-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300"
                                 />
                             </div>
                         </motion.div>
@@ -151,7 +190,7 @@ export default function SignUp() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full pl-11 pr-11 py-3 rounded-lg border border-gray-700  text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300"
+                                    className="w-full pl-11 pr-11 py-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300"
                                 />
                                 <button
                                     type="button"

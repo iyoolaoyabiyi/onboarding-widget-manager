@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 import AnalyticsSection from "@/components/dashboard/AnalyticsSection";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -102,44 +103,85 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen text-white">
-        {!hasTours ? (
-          <div className="flex items-center justify-center min-h-screen px-6 py-10">
-            <div className="w-full max-w-6xl">
-              <OnboardingEmpty onCreate={() => setShowCreate(true)} />
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
-            <DashboardHeader onCreate={() => setShowCreate(true)} />
-            <MetricsGrid metrics={metrics} />
+      <div className="relative min-h-screen w-full text-white overflow-hidden">
+        {/* Grid Background */}
+        <div className="fixed inset-0 w-full bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-20 pointer-events-none" />
+        
+        {/* Animated Gradient Orbs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute -top-40 -left-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-600/20 to-blue-400/10 rounded-full blur-3xl"
+            animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute -bottom-40 -right-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-500/20 to-blue-600/10 rounded-full blur-3xl"
+            animate={{ x: [0, -100, 0], y: [0, 50, 0] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-linear-to-br from-blue-700/10 to-blue-500/5 rounded-full blur-3xl"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
 
-            <section className="grid gap-6 lg:grid-cols-3">
-              <TourEditor
-                steps={steps}
-                defaultTourName={activeTour?.name}
-                defaultBaseUrl={activeTour?.baseUrl}
-                defaultThemeColor={activeTour?.color}
-                defaultCtaCopy="Take a quick tour?"
-              />
-              <div className="space-y-4">
-                <ToursPanel tours={tours} />
-                <IntegrationSnippet
-                  widgetSrc={widgetSrc}
-                  tourId="tour_888"
-                  hasTour={!!activeTour}
-                />
-              </div>
-            </section>
-
-            <AnalyticsSection
-              views={views}
-              completions={completions}
-              dropOff={dropOff}
-              recentEvents={recentEvents}
+        {/* Floating Elements */}
+        <div className="fixed inset-0 pointer-events-none">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-blue-500/30 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 2 + Math.random() * 2, delay: i * 0.2, repeat: Infinity }}
             />
-          </div>
-        )}
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10">
+          {!hasTours ? (
+            <div className="flex items-center justify-center min-h-screen px-6 py-10">
+              <div className="w-full max-w-6xl">
+                <OnboardingEmpty onCreate={() => setShowCreate(true)} />
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
+              <DashboardHeader onCreate={() => setShowCreate(true)} />
+              <MetricsGrid metrics={metrics} />
+
+              <section className="grid gap-6 lg:grid-cols-3">
+                <TourEditor
+                  steps={steps}
+                  defaultTourName={activeTour?.name}
+                  defaultBaseUrl={activeTour?.baseUrl}
+                  defaultThemeColor={activeTour?.color}
+                  defaultCtaCopy="Take a quick tour?"
+                />
+                <div className="space-y-4">
+                  <ToursPanel tours={tours} />
+                  <IntegrationSnippet
+                    widgetSrc={widgetSrc}
+                    tourId="tour_888"
+                    hasTour={!!activeTour}
+                  />
+                </div>
+              </section>
+
+              <AnalyticsSection
+                views={views}
+                completions={completions}
+                dropOff={dropOff}
+                recentEvents={recentEvents}
+              />
+            </div>
+          )}
+        </div>
 
         <CreateTourModal
           open={showCreate}

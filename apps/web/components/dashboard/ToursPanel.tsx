@@ -8,7 +8,7 @@ export default function ToursPanel({ tours }: Props) {
   const hasTours = tours.length > 0;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <div className="rounded-2xl border border-white/10 bg-gray-900/50  p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold">Tours</h3>

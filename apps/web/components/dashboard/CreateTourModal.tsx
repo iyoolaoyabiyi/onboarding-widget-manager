@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Plus, Trash2, AlertCircle } from "lucide-react";
 import { Step, Tour } from "./types";
 
 type Props = {
@@ -17,8 +19,6 @@ export default function CreateTourModal({ open, onClose, onSave }: Props) {
   const [themeColor, setThemeColor] = useState("#0070F3");
   const [ctaCopy, setCtaCopy] = useState("Take a quick tour?");
   const [steps, setSteps] = useState<Step[]>([]);
-
-  if (!open) return null;
 
   const canSave = tourName.trim() && baseUrl.trim() && steps.length >= 5;
 
@@ -71,182 +71,202 @@ export default function CreateTourModal({ open, onClose, onSave }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8 overflow-y-auto">
-      <div className="w-full max-w-4xl rounded-2xl border border-white/10 bg-[#0f0f0f] p-6 shadow-2xl space-y-6 my-auto">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-400">New tour</p>
-            <h3 className="text-2xl font-semibold">Create your onboarding tour</h3>
-          </div>
-          <button
-            className="text-sm px-3 py-2 rounded-lg border border-white/15 hover:bg-white/5 transition-colors"
-            onClick={onClose}
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 py-8 overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-4xl rounded-2xl border border-gray-800 bg-gray-900/95 backdrop-blur-md p-6 shadow-2xl space-y-6 my-auto"
           >
-            Close
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Tour Name</span>
-            <input
-              className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-              value={tourName}
-              onChange={(e) => setTourName(e.target.value)}
-              placeholder="Name your tour"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Base URL</span>
-            <input
-              className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
-              placeholder="https://your-app.com"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Theme Color</span>
-            <div className="flex items-center gap-3">
-              <div
-                className="h-10 w-10 rounded-lg border border-white/10 shrink-0"
-                style={{ background: themeColor }}
-              />
-              <input
-                className="flex-1 px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-                value={themeColor}
-                onChange={(e) => setThemeColor(e.target.value)}
-                placeholder="#0070F3"
-              />
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-blue-400 font-medium mb-1">New Tour</p>
+                <h3 className="text-2xl font-bold text-gray-100">Create your onboarding tour</h3>
+              </div>
+              <button
+                className="text-gray-400 hover:text-gray-200 transition-colors p-2 hover:bg-gray-800/50 rounded-lg"
+                onClick={onClose}
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-          </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">CTA Copy</span>
-            <input
-              className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-              value={ctaCopy}
-              onChange={(e) => setCtaCopy(e.target.value)}
-              placeholder="Prompt users to start the tour"
-            />
-          </label>
-        </div>
+            {/* Tour Details */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-2">
+                <span className="text-sm text-gray-300 font-medium">Tour Name</span>
+                <input
+                  className="px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                  value={tourName}
+                  onChange={(e) => setTourName(e.target.value)}
+                  placeholder="Name your tour"
+                />
+              </label>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-lg">Steps</h3>
-              <p className="text-sm text-gray-400">
-                Add at least 5 steps to create your tour ({steps.length}/5 minimum)
-              </p>
-            </div>
-            <button
-              className="px-4 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/5 transition-colors"
-              onClick={handleAddStep}
-            >
-              + Add Step
-            </button>
-          </div>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm text-gray-300 font-medium">Base URL</span>
+                <input
+                  className="px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                  value={baseUrl}
+                  onChange={(e) => setBaseUrl(e.target.value)}
+                  placeholder="https://your-app.com"
+                />
+              </label>
 
-          {steps.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-6 text-sm text-gray-400 text-center">
-              No steps yet. Click &quot;+ Add Step&quot; to begin creating your tour steps.
-            </div>
-          ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-              {steps.map((step, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-semibold text-sm">
-                        {step.order}
-                      </div>
-                      <span className="text-sm font-medium">Step {step.order}</span>
-                    </div>
-                    {steps.length > 0 && (
-                      <button
-                        className="text-xs px-2 py-1 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
-                        onClick={() => handleRemoveStep(index)}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <label className="flex flex-col gap-1">
-                      <span className="text-xs text-gray-400">Target Element</span>
-                      <input
-                        className="px-3 py-2 rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:border-white/30 text-sm transition-colors"
-                        value={step.target}
-                        onChange={(e) => handleUpdateStep(index, "target", e.target.value)}
-                        placeholder="#nav-logo"
-                      />
-                    </label>
-
-                    <label className="flex flex-col gap-1">
-                      <span className="text-xs text-gray-400">Position</span>
-                      <select
-                        className="px-3 py-2 rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:border-white/30 text-sm transition-colors"
-                        value={step.position}
-                        onChange={(e) => handleUpdateStep(index, "position", e.target.value)}
-                      >
-                        {positionOptions.map((pos) => (
-                          <option key={pos} value={pos}>
-                            {pos}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-
-                  <label className="flex flex-col gap-1">
-                    <span className="text-xs text-gray-400">Step Text</span>
-                    <textarea
-                      className="px-3 py-2 rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:border-white/30 text-sm transition-colors resize-none"
-                      value={step.text}
-                      onChange={(e) => handleUpdateStep(index, "text", e.target.value)}
-                      placeholder="Welcome to the app!"
-                      rows={2}
-                    />
-                  </label>
+              <label className="flex flex-col gap-2">
+                <span className="text-sm text-gray-300 font-medium">Theme Color</span>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="h-12 w-12 rounded-lg border-2 border-gray-700 shrink-0 shadow-inner"
+                    style={{ background: themeColor }}
+                  />
+                  <input
+                    className="flex-1 px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                    value={themeColor}
+                    onChange={(e) => setThemeColor(e.target.value)}
+                    placeholder="#0070F3"
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+              </label>
 
-          {steps.length > 0 && steps.length < 5 && (
-            <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
-              ⚠️ You need at least 5 steps to create a tour. Add {5 - steps.length} more step{5 - steps.length !== 1 ? 's' : ''}.
+              <label className="flex flex-col gap-2">
+                <span className="text-sm text-gray-300 font-medium">CTA Copy</span>
+                <input
+                  className="px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                  value={ctaCopy}
+                  onChange={(e) => setCtaCopy(e.target.value)}
+                  placeholder="Prompt users to start the tour"
+                />
+              </label>
             </div>
-          )}
-        </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-          <button
-            className="px-4 py-2 rounded-lg border border-white/15 hover:bg-white/5 transition-colors"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-          <button
-            className={`px-5 py-2 rounded-lg font-semibold transition-opacity ${
-              canSave
-                ? "bg-white text-black hover:opacity-90"
-                : "bg-white/20 text-white/50 cursor-not-allowed"
-            }`}
-            onClick={handleSave}
-            disabled={!canSave}
-          >
-            Save & Continue
-          </button>
+            {/* Steps Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-100">Steps</h3>
+                  <p className="text-sm text-gray-400">
+                    Add at least 5 steps to create your tour ({steps.length}/5 minimum)
+                  </p>
+                </div>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-300 hover:bg-gray-800 hover:border-gray-600 transition-all"
+                  onClick={handleAddStep}
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Step
+                </button>
+              </div>
+
+              {steps.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-700 bg-gray-800/30 px-4 py-8 text-sm text-gray-400 text-center">
+                  No steps yet. Click &quot;Add Step&quot; to begin creating your tour steps.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                  {steps.map((step, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="rounded-xl border border-gray-700 bg-gray-800/40 p-4 space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-linear-to-br from-blue-600 to-blue-500 flex items-center justify-center font-semibold text-sm text-white shadow-lg shadow-blue-500/20">
+                            {step.order}
+                          </div>
+                          <span className="text-sm font-medium text-gray-200">Step {step.order}</span>
+                        </div>
+                        {steps.length > 0 && (
+                          <button
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
+                            onClick={() => handleRemoveStep(index)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Remove
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <label className="flex flex-col gap-1.5">
+                          <span className="text-xs text-gray-400 font-medium">Target Element</span>
+                          <input
+                            className="px-3 py-2 rounded-lg bg-gray-900/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-sm transition-all"
+                            value={step.target}
+                            onChange={(e) => handleUpdateStep(index, "target", e.target.value)}
+                            placeholder="#nav-logo"
+                          />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                          <span className="text-xs text-gray-400 font-medium">Position</span>
+                          <select
+                            className="px-3 py-2 rounded-lg bg-gray-900/50 border border-gray-700 text-gray-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-sm transition-all"
+                            value={step.position}
+                            onChange={(e) => handleUpdateStep(index, "position", e.target.value)}
+                          >
+                            {positionOptions.map((pos) => (
+                              <option key={pos} value={pos}>
+                                {pos}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+
+                      <label className="flex flex-col gap-1.5">
+                        <span className="text-xs text-gray-400 font-medium">Step Text</span>
+                        <textarea
+                          className="px-3 py-2 rounded-lg bg-gray-900/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-sm transition-all resize-none"
+                          value={step.text}
+                          onChange={(e) => handleUpdateStep(index, "text", e.target.value)}
+                          placeholder="Welcome to the app!"
+                          rows={2}
+                        />
+                      </label>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {steps.length > 0 && steps.length < 5 && (
+                <div className="flex items-center gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <span>You need at least 5 steps to create a tour. Add {5 - steps.length} more step{5 - steps.length !== 1 ? 's' : ''}.</span>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
+              <button
+                className="px-5 py-2.5 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800/50 hover:border-gray-600 transition-all"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
+                className={`px-6 py-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                  canSave
+                    ? "bg-linear-to-r from-blue-600 to-blue-500 text-white hover:from-blue-500 hover:to-blue-400 shadow-lg shadow-blue-500/20"
+                    : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                }`}
+                onClick={handleSave}
+                disabled={!canSave}
+              >
+                Save & Continue
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
