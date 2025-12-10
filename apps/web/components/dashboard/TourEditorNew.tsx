@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Step, Tour } from './types';
 import DomainManager from './DomainManager';
 
@@ -34,12 +34,25 @@ export default function TourEditor({ tour, steps, onSaveConfig, onSaveDomains, o
     status: tour?.status || 'draft',
   });
 
-
-
   const [configSaving, setConfigSaving] = useState(false);
   const [configSaved, setConfigSaved] = useState(false);
   const [domainSaving, setDomainSaving] = useState(false);
   const [domainSaved, setDomainSaved] = useState(false);
+
+  // Sync form data when tour changes
+  useEffect(() => {
+    setFormData({
+      name: tour?.name || '',
+      description: tour?.description || '',
+      theme: (tour?.theme as ThemeName) || 'blue',
+      avatar_enabled: tour?.avatar_enabled || false,
+      allowed_domains: tour?.allowed_domains || [],
+      status: tour?.status || 'draft',
+    });
+    // Reset save states when switching tours
+    setConfigSaved(false);
+    setDomainSaved(false);
+  }, [tour?.id]);
 
   const handleSaveConfig = async () => {
     if (!formData.name.trim()) {
@@ -154,7 +167,7 @@ export default function TourEditor({ tour, steps, onSaveConfig, onSaveDomains, o
           </label>
 
           {/* Theme & Avatar */}
-          <div className="grid md:grid-cols-2 gap-4" id='other-tour-settings'>
+          <div className="space-y-4" id='other-tour-settings'>
             <label className="flex flex-col gap-2">
               <span className="text-sm text-gray-300">Theme</span>
               <div className="flex items-center gap-3">
@@ -179,15 +192,22 @@ export default function TourEditor({ tour, steps, onSaveConfig, onSaveDomains, o
               </div>
             </label>
 
-            <label className="flex items-center gap-3 mt-auto">
-              <input
-                type="checkbox"
-                checked={formData.avatar_enabled}
-                onChange={(e) => setFormData({ ...formData, avatar_enabled: e.target.checked })}
-                className="w-4 h-4 rounded"
-              />
+            {/* Avatar Toggle */}
+            <div className="flex items-center justify-between bg-black/30 border border-white/10 rounded-lg px-4 py-3">
               <span className="text-sm text-gray-300">Show avatar assistant</span>
-            </label>
+              <button
+                onClick={() => setFormData({ ...formData, avatar_enabled: !formData.avatar_enabled })}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                  formData.avatar_enabled ? 'bg-blue-600' : 'bg-white/20'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    formData.avatar_enabled ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>
