@@ -10,7 +10,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { auth } from './firebase';
 
 // Types (define locally to avoid circular imports)
 interface TourStep {
@@ -49,13 +49,12 @@ interface TourConfig {
 }
 
 export class FirestoreService {
-  private static db = getFirestore();
+  private static db = getFirestore(auth.app);
 
   /**
    * Get current user ID
    */
   static getCurrentUserId(): string | null {
-    const auth = getAuth();
     return auth.currentUser?.uid ?? null;
   }
 
