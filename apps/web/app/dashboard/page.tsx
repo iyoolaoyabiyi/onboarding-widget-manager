@@ -102,7 +102,7 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
+      <div className="min-h-screen text-white">
         {!hasTours ? (
           <div className="flex items-center justify-center min-h-screen px-6 py-10">
             <div className="w-full max-w-6xl">
