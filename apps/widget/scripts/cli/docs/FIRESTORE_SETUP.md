@@ -4,25 +4,56 @@ This guide explains how to manually create test tour documents in Firestore to t
 
 ## File: `firestore-test-tours.json`
 
-The file `firestore-test-tours.json` contains sample tour configurations that match your widget's `TourConfig` schema.
+The file `firestore-test-tours.json` contains sample tour configurations that match your widget's updated `TourConfig` schema.
+
+### Tour Schema (Updated)
+
+Each tour document has the following structure:
+
+```typescript
+{
+  id: string;                              // Unique identifier
+  name: string;                            // Display name
+  description?: string;                    // Optional description
+  owner_id: string;                        // Owner/creator ID
+  allowed_domains: string[];               // Whitelisted domains for security
+  theme: 'greyscale' | 'blue' | 'green' | 'red';  // Named theme
+  status: 'draft' | 'active' | 'paused' | 'archived';
+  avatar_enabled: boolean;
+  min_steps: number;                       // Minimum steps required
+  total_views: number;                     // Statistics
+  total_completions: number;
+  completion_rate: number;
+  created_at: string;                      // ISO timestamp
+  updated_at: string;
+  last_viewed_at?: string;
+  steps: TourStep[];                       // At least min_steps required
+}
+```
 
 ### Available Test Tours
 
-1. **tour_12345** — "New User Onboarding" (blue theme, #3498db)
-2. **tour_feature_intro** — "Feature Introduction Tour" (green theme, #27ae60)
-3. **tour_custom_template** — "Custom Template Tour" (red theme, #e74c3c)
+1. **tour_12345** — "New User Onboarding" (blue theme)
+2. **tour_feature_intro** — "Feature Introduction Tour" (green theme)
+3. **tour_custom_template** — "Custom Template Tour" (red theme)
 
 ## How to Create a Tour in Firestore
 
 ### Option 1: Firebase Console (Easiest)
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project: **onboarding-tour-app**
+2. Select your project
 3. Navigate to **Firestore Database**
 4. Click **Create Document** in the `tours` collection
 5. Set the **Document ID** to match the tour's `id` field (e.g., `tour_12345`)
-6. Copy one of the tour objects from `firestore-test-tours.json` and paste the fields into the form
-7. Click **Save**
+6. Copy one of the tour objects from `firestore-test-tours.json` and paste the fields
+7. **Important**: Verify these fields are set:
+   - ✅ `theme`: Must be one of: `greyscale`, `blue`, `green`, `red`
+   - ✅ `status`: Must be one of: `draft`, `active`, `paused`, `archived`
+   - ✅ `allowed_domains`: Array with at least one domain
+   - ✅ `min_steps`: Number (default: 5)
+   - ✅ `steps`: Array with at least `min_steps` items
+8. Click **Save**
 
 ### Option 2: Firebase CLI (Advanced)
 
@@ -34,46 +65,26 @@ npm install -g firebase-tools
 firebase login
 
 # Set your project
-firebase use onboarding-tour-app
+firebase use your-project-id
 
-# Import data (if using a bulk import script)
-# See option 3 below
+# Deploy Firestore rules (includes schema validation)
+firebase deploy --only firestore:rules
 ```
 
-### Option 3: Programmatic (Node.js Script)
+### Option 3: Using the Tour CLI Manager
 
-Create a file `scripts/import-test-tours.js`:
-
-```javascript
-const admin = require('firebase-admin');
-const serviceAccount = require('./path/to/serviceAccountKey.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: 'onboarding-tour-app',
-});
-
-const db = admin.firestore();
-const testTours = require('../firestore-test-tours.json');
-
-async function importTours() {
-  for (const tour of testTours.tours) {
-    await db.collection('tours').doc(tour.id).set(tour);
-    console.log(`Created tour: ${tour.id}`);
-  }
-  console.log('All test tours imported!');
-  process.exit(0);
-}
-
-importTours().catch(error => {
-  console.error('Error importing tours:', error);
-  process.exit(1);
-});
-```
-
-Run with:
 ```bash
-node scripts/import-test-tours.js
+# Create a tour from template
+node scripts/tour.js create scripts/cli/samples/tour-template.json
+
+# Bulk import test tours
+node scripts/tour.js import scripts/cli/samples/firestore-test-tours.json
+
+# List all tours
+node scripts/tour.js list
+
+# Get specific tour details
+node scripts/tour.js get tour_12345
 ```
 
 ## Testing the Widget
@@ -113,10 +124,18 @@ Edit `firestore-test-tours.json` to add your own tour:
 {
   "id": "tour_my_custom",
   "name": "My Custom Tour",
-  "theme_color": "#YOUR_HEX_COLOR",
+  "description": "Custom tour for my product",
   "owner_id": "your_user_id",
-  "base_url": "https://yourapp.com",
-  "created_at": "2024-12-09T14:00:00Z",
+  "allowed_domains": ["yourdomain.com", "app.yourdomain.com"],
+  "theme": "blue",
+  "status": "active",
+  "avatar_enabled": false,
+  "min_steps": 5,
+  "total_views": 0,
+  "total_completions": 0,
+  "completion_rate": 0,
+  "created_at": "2024-12-10T14:00:00Z",
+  "updated_at": "2024-12-10T14:00:00Z",
   "steps": [
     {
       "id": "step_1",
@@ -124,9 +143,13 @@ Edit `firestore-test-tours.json` to add your own tour:
       "target_element": "#element-id",
       "title": "Step Title",
       "content": "Step description.",
-      "position": "bottom"
+      "position": "bottom",
+      "created_at": "2024-12-10T14:00:00Z",
+      "updated_at": "2024-12-10T14:00:00Z"
     }
-    // ... more steps (minimum 5 required)
+    // ... more steps (minimum 5 required, use min_steps value)
+  ]
+}
   ]
 }
 ```

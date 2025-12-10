@@ -30,6 +30,7 @@ export class Analytics {
     }
 
     const event: AnalyticsEvent = {
+      event_id: this.generateEventId(),
       tour_id: tourId,
       session_id: this.sessionId,
       action,
@@ -90,5 +91,9 @@ export class Analytics {
 
   static clearEvents(): void {
     this.events = [];
+  }
+
+  private static generateEventId(): string {
+    return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }

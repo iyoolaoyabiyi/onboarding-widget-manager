@@ -45,10 +45,8 @@ export class TourRenderer {
       }
       return;
     }
-
     // Apply highlight
     this.highlightedElement = targetElement;
-    document.documentElement.style.setProperty('--tour-theme', this.config.theme_color);
     targetElement.classList.add(HIGHLIGHT_CLASS);
     targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
@@ -81,7 +79,7 @@ export class TourRenderer {
     });
 
     // Track analytics
-    Analytics.track('started', this.config.id, step.id);
+    Analytics.track('step_viewed', this.config.id, step.id);
 
     // Persist progress so reload resumes at the same step
     this.persistStepIndex(index);
@@ -91,15 +89,15 @@ export class TourRenderer {
     if (this.currentStepIndex >= this.config.steps.length - 1) {
       // Tour finished
       const currentStep = this.config.steps[this.currentStepIndex];
-      Analytics.track('completed', this.config.id, currentStep?.id);
-      Analytics.track('tour_finished', this.config.id);
+      Analytics.track('step_completed', this.config.id, currentStep?.id);
+      Analytics.track('tour_completed', this.config.id);
       this.clearPersistedStep();
       this.onFinish();
       return;
     }
 
     const currentStep = this.config.steps[this.currentStepIndex];
-    Analytics.track('completed', this.config.id, currentStep?.id);
+    Analytics.track('step_completed', this.config.id, currentStep?.id);
 
     this.renderStep(this.currentStepIndex + 1);
   }
@@ -112,7 +110,7 @@ export class TourRenderer {
 
   skip(): void {
     const currentStep = this.config.steps[this.currentStepIndex];
-    Analytics.track('skipped', this.config.id, currentStep?.id);
+    Analytics.track('step_skipped', this.config.id, currentStep?.id);
     this.clearPersistedStep();
     this.destroy();
   }

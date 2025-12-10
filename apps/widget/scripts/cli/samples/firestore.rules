@@ -8,14 +8,24 @@ service cloud.firestore {
       // Widget can read tours (for loading configurations)
       allow read: if true;
       
-      // Only authenticated users can create/update/delete tours (dashboard)
-      allow create, update: if request.auth != null;
+      // Validate tour schema on create/update
+      allow create, update: if request.auth != null 
+        && request.resource.data.id != null
+        && request.resource.data.name != null
+        && request.resource.data.owner_id != null
+        && request.resource.data.theme in ['greyscale', 'blue', 'green', 'red']
+        && request.resource.data.status in ['draft', 'active', 'paused', 'archived']
+        && request.resource.data.allowed_domains is list
+        && request.resource.data.allowed_domains.size() > 0
+        && request.resource.data.steps is list
+        && request.resource.data.steps.size() >= 5;
+      
       allow delete: if request.auth != null && request.auth.uid == resource.data.owner_id;
       
       // Steps subcollection (new schema for scalability)
       match /steps/{stepId} {
         allow read: if true;
-        allow write: if request.auth != null;
+        allow write: if request.auth != null && get(/databases/$(database)/documents/tours/$(tourId)).data.owner_id == request.auth.uid;
       }
       
       // Legacy sessions subcollection (keep for backward compatibility)
@@ -34,15 +44,30 @@ service cloud.firestore {
     
     // New flat analytics collection (improved query performance)
     match /analytics/{sessionId} {
-      // Widget can create and read analytics sessions
+      // Validate analytics session schema
+      allow create: if request.resource.data.session_id != null
+        && request.resource.data.tour_id != null
+        && request.resource.data.started_at != null
+        && request.resource.data.domain != null
+        && request.resource.data.user_agent != null
+        && request.resource.data.status in ['in_progress', 'completed', 'skipped', 'abandoned'];
+      
+      // Widget can read analytics (for current session)
       allow read: if true;
-      allow create: if true;
+      
+      // Allow updates for session completion/status
       allow update: if true;
       
       // Events subcollection for detailed tracking
       match /events/{eventId} {
+        // Validate analytics event schema
+        allow create: if request.resource.data.event_id != null
+          && request.resource.data.session_id != null
+          && request.resource.data.tour_id != null
+          && request.resource.data.action != null
+          && request.resource.data.timestamp != null;
+        
         allow read: if true;
-        allow create: if true;
       }
     }
     

@@ -44,7 +44,7 @@ export class TourManager {
       await this.initializeSession(tourConfig.id);
 
       // Load styles after we know the theme and that we need to run
-      StyleManager.ensureStyles(tourConfig.theme_color);
+      StyleManager.ensureStyles(tourConfig.theme);
 
       // Create renderer and start tour
       this.renderer = new TourRenderer(tourConfig, () => {

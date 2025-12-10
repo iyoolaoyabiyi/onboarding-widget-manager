@@ -18,8 +18,7 @@ const args = process.argv.slice(2).join(' ');
 
 try {
   execSync(`node ${cliPath} ${args}`, {
-    stdio: 'inherit',
-    cwd: __dirname
+    stdio: 'inherit'
   });
 } catch (err) {
   process.exit(err.status || 1);

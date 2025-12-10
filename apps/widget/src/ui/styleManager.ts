@@ -1,4 +1,5 @@
-import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX } from '../config/constants';
+import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX, THEME_DEFINITIONS } from '../config/constants';
+import type { ThemeName } from '../types/types';
 
 /**
  * Manages all CSS styles for the tour overlay and tooltip
@@ -6,25 +7,26 @@ import { STYLE_ID, DEFAULT_TOUR_CONFIG, HIGH_Z_INDEX, HIGHEST_Z_INDEX } from '..
 export class StyleManager {
   private static isInitialized = false;
 
-  static ensureStyles(themeColor: string = DEFAULT_TOUR_CONFIG.theme_color): void {
+  static ensureStyles(themeName: ThemeName = DEFAULT_TOUR_CONFIG.theme): void {
     if (this.isInitialized || document.getElementById(STYLE_ID)) {
       return;
     }
 
     const style = document.createElement('style');
     style.id = STYLE_ID;
-    style.textContent = this.generateStyles(themeColor);
+    style.textContent = this.generateStyles(themeName);
 
     document.head.appendChild(style);
     this.isInitialized = true;
   }
 
-  private static generateStyles(themeColor: string): string {
+  private static generateStyles(themeName: ThemeName): string {
+    const theme = THEME_DEFINITIONS[themeName];
     return `
       .tour-highlighted-element {
         position: relative;
         z-index: ${HIGH_Z_INDEX};
-        box-shadow: 0 0 0 3px var(--tour-theme, ${themeColor}), 0 0 0 9999px rgba(0,0,0,0.45);
+        box-shadow: 0 0 0 3px ${theme.border}, 0 0 0 9999px rgba(0,0,0,0.45);
         border-radius: 12px;
         transition: box-shadow 0.2s ease, transform 0.2s ease;
       }
@@ -35,9 +37,9 @@ export class StyleManager {
         max-width: 320px;
         padding: 12px;
         border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.14);
-        background: #0e162d;
-        color: #e7ecff;
+        border: 1px solid ${theme.border};
+        background: ${theme.background};
+        color: ${theme.text};
         box-shadow: 0 18px 40px rgba(0,0,0,0.45);
         font-family: system-ui, -apple-system, sans-serif;
         opacity: 0;
@@ -52,10 +54,11 @@ export class StyleManager {
         margin: 0 0 6px;
         font-size: 15px;
         font-weight: 600;
+        color: ${theme.highlight};
       }
       .onboarding-tour-tooltip p {
         margin: 0 0 10px;
-        color: #9fb3ff;
+        color: ${theme.textSecondary};
         line-height: 1.5;
         font-size: 13px;
       }
@@ -71,16 +74,16 @@ export class StyleManager {
       .onboarding-tour-actions button {
         padding: 7px 11px;
         border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.14);
-        background: rgba(255,255,255,0.06);
-        color: #e7ecff;
+        border: 1px solid ${theme.accent};
+        background: ${theme.accent}20;
+        color: ${theme.accent};
         font-weight: 600;
         cursor: pointer;
         font-size: 12px;
         transition: background 0.2s ease, border-color 0.2s ease;
       }
       .onboarding-tour-actions button:hover:not(:disabled) {
-        background: rgba(255,255,255,0.12);
+        background: ${theme.accent}40;
       }
       .onboarding-tour-actions button:disabled {
         opacity: 0.5;
@@ -88,8 +91,8 @@ export class StyleManager {
       }
       .onboarding-tour-actions .primary {
         border-color: transparent;
-        background: var(--tour-theme, ${themeColor});
-        color: #fff;
+        background: ${theme.accent};
+        color: ${theme.background};
       }
       .onboarding-tour-actions .primary:hover {
         opacity: 0.9;

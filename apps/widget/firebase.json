@@ -1,6 +1,6 @@
 {
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "scripts/cli/samples/firestore.rules"
   },
   "emulators": {
     "dataconnect": {
