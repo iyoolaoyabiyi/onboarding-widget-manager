@@ -1,3 +1,10 @@
 packages:
-  - "apps/*"
-  - "docs"
+  - apps/*
+  - docs
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - esbuild
+  - protobufjs
+  - sharp
+  - unrs-resolver
