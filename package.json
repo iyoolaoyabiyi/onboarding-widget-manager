@@ -12,7 +12,8 @@
     "build:widget": "pnpm run build --filter widget",
     "preview:widget": "pnpm run preview --filter widget",
     "lint:web": "pnpm run lint --filter web",
-    "lint:widget": "pnpm run lint --filter widget"
+    "lint:widget": "pnpm run lint --filter widget",
+    "clear-analytics": "cd apps/widget && node scripts/clear-analytics.cjs"
   },
   "engines": {
     "node": ">=18.18.0"

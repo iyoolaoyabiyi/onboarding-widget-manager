@@ -13,6 +13,7 @@ export class TourRenderer {
   private highlightedElement: HTMLElement | null = null;
   private resizeHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;
+  private routeChangeHandler: (() => void) | null = null;
   private onFinish: () => void;
   private onCancel?: () => void;
 
@@ -161,13 +162,54 @@ export class TourRenderer {
   setupEventListeners(): void {
     this.resizeHandler = () => this.reposition();
     this.scrollHandler = () => this.reposition();
+    this.routeChangeHandler = () => this.handleRouteChange();
 
     window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('scroll', this.scrollHandler);
+    
+    // Listen for route changes in SPAs
+    this.setupRouteChangeListeners();
   }
 
   getTotalSteps(): number {
     return this.config.steps.length;
+  }
+
+  /**
+   * Set up listeners for route changes in SPAs
+   */
+  private setupRouteChangeListeners(): void {
+    if (!this.routeChangeHandler) return;
+
+    // Listen for browser history changes (pushState, replaceState)
+    window.addEventListener('popstate', this.routeChangeHandler);
+    
+    // Intercept pushState and replaceState
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+    
+    history.pushState = (...args) => {
+      originalPushState.apply(history, args);
+      if (this.routeChangeHandler) this.routeChangeHandler();
+    };
+    
+    history.replaceState = (...args) => {
+      originalReplaceState.apply(history, args);
+      if (this.routeChangeHandler) this.routeChangeHandler();
+    };
+    
+    // Store originals for cleanup
+    (window as any).__originalPushState = originalPushState;
+    (window as any).__originalReplaceState = originalReplaceState;
+  }
+
+  /**
+   * Handle route change by closing the tour
+   */
+  private handleRouteChange(): void {
+    console.log('Route change detected, closing tour...');
+    Analytics.track('tour_closed_route_change', this.config.id);
+    this.skip();
   }
 
   private reposition(): void {
@@ -192,6 +234,20 @@ export class TourRenderer {
     if (this.scrollHandler) {
       window.removeEventListener('scroll', this.scrollHandler);
       this.scrollHandler = null;
+    }
+    if (this.routeChangeHandler) {
+      window.removeEventListener('popstate', this.routeChangeHandler);
+      this.routeChangeHandler = null;
+    }
+    
+    // Restore original history methods
+    if ((window as any).__originalPushState) {
+      history.pushState = (window as any).__originalPushState;
+      delete (window as any).__originalPushState;
+    }
+    if ((window as any).__originalReplaceState) {
+      history.replaceState = (window as any).__originalReplaceState;
+      delete (window as any).__originalReplaceState;
     }
 
     document.documentElement.style.removeProperty('--tour-theme');
