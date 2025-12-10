@@ -38,7 +38,10 @@ export default function AnalyticsSection({ tourId }: Props) {
           completions: metrics.totalCompletions,
           completionRate: metrics.completionRate,
           averageDuration: metrics.averageDuration,
-          dropOff: metrics.dropOffByStep,
+          dropOff: metrics.dropOffByStep.map(item => ({
+            step: item.step,
+            percent: item.percentage,
+          })),
           recentEvents: recentEvents.map((event) => ({
             tour_id: event.tour_id,
             step: parseInt(event.step_id?.split('_').pop() || '0', 10),
@@ -116,12 +119,12 @@ export default function AnalyticsSection({ tourId }: Props) {
                   <div key={item.step}>
                     <div className="flex items-center justify-between text-sm text-gray-400">
                       <span>Step {item.step}</span>
-                      <span>{item.percentage}% drop-off</span>
+                      <span>{item.percent}% drop-off</span>
                     </div>
                     <div className="h-2 rounded-full bg-white/10">
                       <div
                         className="h-full rounded-full bg-linear-to-r from-[#00FF9C] to-[#0070F3]"
-                        style={{ width: `${item.percentage}%` }}
+                        style={{ width: `${item.percent}%` }}
                       />
                     </div>
                   </div>

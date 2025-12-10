@@ -59,14 +59,24 @@ export class TourManager {
       StyleManager.ensureStyles(tourConfig.theme);
 
       // Create renderer and start tour
-      this.renderer = new TourRenderer(tourConfig, async () => {
-        this.markCompleted(tourConfig.id);
-        const totalSteps = this.renderer?.getTotalSteps?.() || tourConfig.steps.length;
-        await Analytics.finalizeSession(totalSteps).catch((error) => {
-          console.warn('Failed to finalize session:', error);
-        });
-        await this.cleanup();
-      });
+      this.renderer = new TourRenderer(
+        tourConfig,
+        async () => {
+          this.markCompleted(tourConfig.id);
+          const totalSteps = this.renderer?.getTotalSteps?.() || tourConfig.steps.length;
+          await Analytics.finalizeSession(totalSteps).catch((error) => {
+            console.warn('Failed to finalize session:', error);
+          });
+          await this.cleanup();
+        },
+        async () => {
+          const totalSteps = this.renderer?.getTotalSteps?.() || tourConfig.steps.length;
+          await Analytics.finalizeSession(totalSteps).catch((error) => {
+            console.warn('Failed to finalize session on skip:', error);
+          });
+          await this.cleanup();
+        }
+      );
       this.renderer.setupEventListeners();
       this.renderer.renderStep(this.renderer.getCurrentStepIndex());
 
@@ -96,13 +106,15 @@ export class TourManager {
 
   static skip(): void {
     if (this.renderer) {
-      this.renderer.skip();
-      const totalSteps = this.renderer.getTotalSteps?.() || 5;
-      // Finalize analytics asynchronously without blocking
-      Analytics.finalizeSession(totalSteps).catch((error) => {
-        console.warn('Failed to finalize session on skip:', error);
-      });
-      this.renderer = null;
+      const handled = this.renderer.skip();
+      if (!handled) {
+        const totalSteps = this.renderer.getTotalSteps?.() || 5;
+        // Finalize analytics asynchronously without blocking
+        Analytics.finalizeSession(totalSteps).catch((error) => {
+          console.warn('Failed to finalize session on skip:', error);
+        });
+        this.renderer = null;
+      }
     }
     AvatarAssistant.destroy();
     StyleManager.cleanup();

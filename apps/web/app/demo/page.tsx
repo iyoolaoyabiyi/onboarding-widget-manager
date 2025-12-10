@@ -14,6 +14,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { Space_Grotesk } from "next/font/google";
+import { FirestoreService } from "@/lib/firestore";
 
 const grotesk = Space_Grotesk({ subsets: ["latin"] });
 
@@ -49,81 +50,6 @@ type TourConfig = {
 
 const DEMO_TOUR_ID = "tour_iyofor_demo_canvas";
 
-const demoTourConfig: TourConfig = {
-  id: DEMO_TOUR_ID,
-  name: "Guided Demo Showcase",
-  description: "A live walkthrough of the interactive demo space and controls.",
-  owner_id: "AqNtmdjMhVenWyvAbWydJFhdrKk2",
-  theme: "green",
-  allowed_domains: [
-    "localhost",
-    "onboarding-widget-app.vercel.app",
-    "onboarding-tour-app.web.app",
-  ],
-  status: "active",
-  avatar_enabled: true,
-  min_steps: 5,
-  total_views: 0,
-  total_completions: 0,
-  completion_rate: 0,
-  created_at: "2025-12-10T21:12:18.427Z",
-  updated_at: "2025-12-10T21:12:18.427Z",
-  steps: [
-    {
-      id: "demo_step_hero",
-      tour_id: DEMO_TOUR_ID,
-      order: 1,
-      target_element: "#demo-hero",
-      position: "bottom",
-      title: "Tour-ready canvas",
-      content:
-        "This hero area explains the scenario the tour is about to cover. Everything below is targetable by the widget.",
-    },
-    {
-      id: "demo_step_start",
-      tour_id: DEMO_TOUR_ID,
-      order: 2,
-      target_element: "#tour-start-button",
-      position: "right",
-      title: "Kick things off",
-      content:
-        "Use this button to launch the tour. It clears old progress so you always get a fresh run.",
-      cta_text: "Start tour",
-    },
-    {
-      id: "demo_step_controls",
-      tour_id: DEMO_TOUR_ID,
-      order: 3,
-      target_element: "#tour-control-panel",
-      position: "top",
-      title: "Manual controls",
-      content:
-        "Drive the experience yourself with next/back/skip. These call the public widget API under the hood.",
-    },
-    {
-      id: "demo_step_flow",
-      tour_id: DEMO_TOUR_ID,
-      order: 4,
-      target_element: "#tour-flow-map",
-      position: "left",
-      title: "What the tour covers",
-      content:
-        "The flow map shows the checkpoints the tour will highlight so you know what to expect.",
-    },
-    {
-      id: "demo_step_reset",
-      tour_id: DEMO_TOUR_ID,
-      order: 5,
-      target_element: "#tour-reset-card",
-      position: "top",
-      title: "Restart anytime",
-      content:
-        "Hit reset to clear saved sessions and completion flags, then replay the walkthrough.",
-      cta_text: "Reset & replay",
-    },
-  ],
-};
-
 const statusCopy: Record<string, string> = {
   idle: "Waiting to start",
   running: "Tour is live",
@@ -136,7 +62,35 @@ export default function DemoPage() {
     "idle"
   );
   const [lastAction, setLastAction] = useState("Ready when you are");
+  const [tourConfig, setTourConfig] = useState<TourConfig | null>(null);
+  const [loadingTour, setLoadingTour] = useState(true);
+  const [tourError, setTourError] = useState<string | null>(null);
 
+  // Load tour from Firestore on mount
+  useEffect(() => {
+    const loadTour = async () => {
+      try {
+        setLoadingTour(true);
+        const tour = await FirestoreService.getTour(DEMO_TOUR_ID);
+        if (!tour) {
+          setTourError("Tour not found in database");
+          setLoadingTour(false);
+          return;
+        }
+        setTourConfig(tour);
+        setTourError(null);
+      } catch (error) {
+        console.error("Error loading tour:", error);
+        setTourError("Failed to load tour from database");
+      } finally {
+        setLoadingTour(false);
+      }
+    };
+
+    loadTour();
+  }, []);
+
+  // Check if widget is ready
   useEffect(() => {
     const interval = setInterval(() => {
       if (typeof window === "undefined") return;
@@ -162,11 +116,11 @@ export default function DemoPage() {
   };
 
   const startTour = async (withReset = true) => {
-    if (!tourReady || !window.OnboardingTour?.init) return;
+    if (!tourReady || !window.OnboardingTour?.init || !tourConfig) return;
     if (withReset) {
       clearStoredProgress();
     }
-    await window.OnboardingTour.init(demoTourConfig);
+    await window.OnboardingTour.init(tourConfig);
     setTourStatus("running");
     setLastAction(withReset ? "Started fresh tour" : "Resumed tour");
   };
@@ -212,6 +166,34 @@ export default function DemoPage() {
 
   return (
     <main className={`${grotesk.className} relative overflow-hidden`}>
+      {/* Loading state */}
+      {loadingTour && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur">
+          <div className="space-y-4 text-center">
+            <div className="h-8 w-8 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin mx-auto" />
+            <p className="text-gray-300">Loading demo tour from database...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {tourError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur">
+          <div className="rounded-2xl border border-red-500/50 bg-red-950/30 p-6 max-w-md space-y-4">
+            <p className="text-lg font-semibold text-red-300">{tourError}</p>
+            <p className="text-sm text-gray-300">
+              Make sure the tour with ID <code className="text-emerald-300">{DEMO_TOUR_ID}</code> exists in your Firestore database.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full rounded-lg bg-red-500/20 px-4 py-2 text-red-300 hover:bg-red-500/30 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="absolute inset-0 bg-radial from-emerald-900/20 via-transparent to-black pointer-events-none" />
       <div className="absolute -top-20 -left-10 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-10 right-0 w-80 h-80 rounded-full bg-lime-400/10 blur-3xl pointer-events-none" />
@@ -229,7 +211,7 @@ export default function DemoPage() {
             Uses the real widget API
           </span>
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-gray-300">
-            Firebase-linked config
+            Loaded from database
           </span>
         </div>
 
@@ -240,11 +222,11 @@ export default function DemoPage() {
               Playable onboarding story
             </div>
             <h1 className="text-4xl sm:text-5xl font-semibold leading-tight text-white">
-              Run the full tour on this page, restart it, and drive every step
+              Run your tour from the database, restart it, and drive every step
               with the control bar.
             </h1>
             <p className="text-lg text-gray-300 max-w-2xl">
-              We wired the embeddable widget to a Firebase-hosted tour. Use the buttons below to start, resume, or reset without
+              The tour is loaded from Firestore in real-time. Use the buttons below to start, resume, or reset without
               leaving the page.
             </p>
             <div className="flex flex-wrap items-center gap-3">
@@ -297,15 +279,15 @@ export default function DemoPage() {
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <p className="text-gray-400 mb-2">Owner</p>
+                  <p className="text-gray-400 mb-2">Tour Name</p>
                   <p className="text-white font-semibold break-all">
-                    Your Tour
+                    {tourConfig?.name || "Loading..."}
                   </p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-                  <p className="text-gray-400 mb-2">Allowed domains</p>
+                  <p className="text-gray-400 mb-2">Status</p>
                   <p className="text-white font-semibold">
-                    localhost, allowed-domain.tld
+                    {tourConfig?.status ? tourConfig.status.charAt(0).toUpperCase() + tourConfig.status.slice(1) : "Loading..."}
                   </p>
                 </div>
               </div>
@@ -315,14 +297,14 @@ export default function DemoPage() {
                     <Sparkles className="w-5 h-5 text-emerald-300" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-400">Tour summary</p>
+                    <p className="text-sm text-gray-400">Tour steps</p>
                     <p className="text-white font-semibold">
-                      5 interactive checkpoints
+                      {tourConfig?.steps.length || 0} interactive checkpoints
                     </p>
                   </div>
                 </div>
                 <ul className="grid grid-cols-2 gap-2 text-xs text-gray-300">
-                  {demoTourConfig.steps.map((step) => (
+                  {tourConfig?.steps.map((step) => (
                     <li
                       key={step.id}
                       className="rounded-lg border border-white/10 bg-black/50 px-3 py-2"
@@ -420,7 +402,7 @@ export default function DemoPage() {
             </h3>
             <p className="text-gray-300 text-sm">
               Removes completion flags and cached sessions for{" "}
-              <code>{DEMO_TOUR_ID}</code>, then lets you restart instantly.
+              <code>{tourConfig?.id || DEMO_TOUR_ID}</code>, then lets you restart instantly.
             </p>
             <div className="flex flex-col gap-2">
               <button
@@ -456,11 +438,11 @@ export default function DemoPage() {
               </h3>
             </div>
             <span className="text-sm text-gray-400">
-              Minimum steps: {demoTourConfig.min_steps}
+              {tourConfig?.steps.length || 0} total steps
             </span>
           </div>
           <div className="grid md:grid-cols-5 gap-4">
-            {demoTourConfig.steps.map((step) => (
+            {tourConfig?.steps.map((step) => (
               <div
                 key={step.id}
                 className="rounded-xl border border-white/10 bg-black/50 p-4 space-y-2"

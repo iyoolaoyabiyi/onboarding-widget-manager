@@ -14,6 +14,7 @@ export class TourRenderer {
   private resizeHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;
   private onFinish: () => void;
+  private onCancel?: () => void;
 
   /**
    * Cancel any active GSAP tweens to avoid lingering animations when skipping.
@@ -28,10 +29,11 @@ export class TourRenderer {
     }
   }
 
-  constructor(config: TourConfig, onFinish: () => void) {
+  constructor(config: TourConfig, onFinish: () => void, onCancel?: () => void) {
     this.config = config;
     this.currentStepIndex = this.loadSavedStepIndex();
     this.onFinish = onFinish;
+    this.onCancel = onCancel;
   }
 
   renderStep(index: number): void {
@@ -121,12 +123,17 @@ export class TourRenderer {
     }
   }
 
-  skip(): void {
+  skip(): boolean {
     const currentStep = this.config.steps[this.currentStepIndex];
     Analytics.track('step_skipped', this.config.id, currentStep?.id);
     this.clearPersistedStep();
     this.clearAnimations();
+    if (this.onCancel) {
+      this.onCancel();
+      return true;
+    }
     this.destroy();
+    return false;
   }
 
   private handleButtonClick(action: string): void {
