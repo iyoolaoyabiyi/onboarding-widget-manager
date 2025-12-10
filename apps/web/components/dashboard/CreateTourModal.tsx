@@ -13,14 +13,14 @@ const positionOptions = ["Top", "Bottom", "Left", "Right"];
 
 export default function CreateTourModal({ open, onClose, onSave }: Props) {
   const [tourName, setTourName] = useState("");
-  const [baseUrl, setBaseUrl] = useState("");
-  const [themeColor, setThemeColor] = useState("#0070F3");
+  const [allowedDomains, setAllowedDomains] = useState("");
+  const [theme, setTheme] = useState<"greyscale" | "blue" | "green" | "red">("blue");
   const [ctaCopy, setCtaCopy] = useState("Take a quick tour?");
   const [steps, setSteps] = useState<Step[]>([]);
 
   if (!open) return null;
 
-  const canSave = tourName.trim() && baseUrl.trim() && steps.length >= 5;
+  const canSave = tourName.trim() && allowedDomains.trim() && steps.length >= 5;
 
   const handleAddStep = () => {
     const newStep: Step = {
@@ -49,23 +49,35 @@ export default function CreateTourModal({ open, onClose, onSave }: Props) {
   const handleSave = () => {
     if (!canSave) return;
 
+    const now = new Date().toISOString();
+    const domains = allowedDomains.split(',').map(d => d.trim()).filter(Boolean);
+    
     const newTour: Tour = {
       id: `tour_${Date.now()}`,
       name: tourName,
-      baseUrl: baseUrl,
+      description: ctaCopy,
+      allowed_domains: domains,
       steps: steps.length,
       completion: 0,
-      status: "Draft",
+      status: "draft",
       updated: "Just now",
-      color: themeColor,
+      theme: theme,
+      owner_id: "", // Will be set by Firestore service
+      avatar_enabled: false,
+      min_steps: 5,
+      total_views: 0,
+      total_completions: 0,
+      completion_rate: 0,
+      created_at: now,
+      updated_at: now,
     };
 
     onSave({ tour: newTour, steps });
     
     // Reset form
     setTourName("");
-    setBaseUrl("");
-    setThemeColor("#0070F3");
+    setAllowedDomains("");
+    setTheme("blue");
     setCtaCopy("Take a quick tour?");
     setSteps([]);
   };
@@ -98,29 +110,27 @@ export default function CreateTourModal({ open, onClose, onSave }: Props) {
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Base URL</span>
+            <span className="text-sm text-gray-300">Allowed Domains (comma-separated)</span>
             <input
               className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
-              placeholder="https://your-app.com"
+              value={allowedDomains}
+              onChange={(e) => setAllowedDomains(e.target.value)}
+              placeholder="localhost, example.com, *.myapp.com"
             />
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-gray-300">Theme Color</span>
-            <div className="flex items-center gap-3">
-              <div
-                className="h-10 w-10 rounded-lg border border-white/10 shrink-0"
-                style={{ background: themeColor }}
-              />
-              <input
-                className="flex-1 px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors"
-                value={themeColor}
-                onChange={(e) => setThemeColor(e.target.value)}
-                placeholder="#0070F3"
-              />
-            </div>
+            <span className="text-sm text-gray-300">Theme</span>
+            <select
+              className="px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 transition-colors text-white"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as "greyscale" | "blue" | "green" | "red")}
+            >
+              <option value="greyscale">Greyscale</option>
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="red">Red</option>
+            </select>
           </label>
 
           <label className="flex flex-col gap-2">

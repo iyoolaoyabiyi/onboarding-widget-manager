@@ -3,18 +3,29 @@
 ```json
 {
   "id": "tour_12345",
-  "owner_id": "user_888", // Links to Auth Provider
+  "owner_id": "user_888",
   "name": "New User Onboarding",
-  "base_url": "https://client-website.com", // Where this tour is allowed to run
-  "theme_color": "#0070f3",
+  "description": "Guide users through the onboarding process",
+  "allowed_domains": ["client-website.com"],
+  "theme": "blue",
+  "status": "active",
+  "avatar_enabled": false,
+  "min_steps": 5,
+  "total_views": 0,
+  "total_completions": 0,
+  "completion_rate": 0,
+  "created_at": "2024-12-10T00:00:00Z",
+  "updated_at": "2024-12-10T00:00:00Z",
   "steps": [
     {
       "id": "step_01",
       "order": 1,
-      "target_element": "#signup-btn", // ID of element to highlight
+      "target_element": "#signup-btn",
       "title": "Start Here",
       "content": "Click here to create your account.",
-      "position": "bottom" // tooltip position
+      "position": "bottom",
+      "created_at": "2024-12-10T00:00:00Z",
+      "updated_at": "2024-12-10T00:00:00Z"
     },
     {
       "id": "step_02",
@@ -44,18 +55,18 @@
 
 ## **Functional Requirements**
 
-- **FR-01 (Auth):** Users must be able to sign up, log in, and log out using (e.g., Clerk/Supabase).
+- **FR-01 (Auth):** Users must be able to sign up, log in, and log out using Firebase Auth.
 - **FR-02 (Tour Creation):** Logged-in users can create a tour entity containing at least 5 steps.
 - **FR-03 (Script Gen):** The system must generate a unique JavaScript snippet containing the specific `tour_id`.
 - **FR-04 (Embedding):** The external widget must fetch tour data using the `tour_id` from the script tag.
 - **FR-05 (Highlighting):** The widget must identify HTML elements by ID on the host page and overlay a tooltip/highlight.
 - **FR-06 (Persistence):** Tour progress (current step) must be saved; if a user reloads, they can resume.
-- **FR-07 (Analytics):** Every "Next", "Back", or "Skip" click must trigger a database write to the analytics table.
+- **FR-07 (Analytics):** Every "Next", "Back", or "Skip" click must trigger a Firestore write to the `analytics` collection.
 
 ## **Non-Functional Requirements**
 
 - **NFR-01 (Performance):** The embeddable script bundle size should be minimized (target <50kb) using Vite.
-- **NFR-02 (Animation):** UI transitions must use GSAP or Framer Motion without layout thrashing.
+- **NFR-02 (Animation):** UI transitions must use GSAP or Framer Motion without layout thrashing (applies to the embeddable widget and marketing surfaces).
 - **NFR-03 (Compatibility):** The widget must work when embedded on a plain HTML page or a React app.
 
 ## **User Flows & User Stories**
@@ -70,7 +81,7 @@
     - **Step 1:** Types Target ID (`#nav-home`), Title, and Description.
     - **Step 2-5:** Repeats for subsequent steps.
 4. **Save:** Clicks "Save". Database updates.
-5. **Deploy:** User clicks "Get Code". System displays: `<script src="https://our-app.vercel.app/widget.js" data-tour-id="tour_123"></script>`
+5. **Deploy:** User clicks "Get Code". System displays: `<script src="https://our-app.vercel.app/ota-widget.js" data-tour-id="tour_123"></script>`
 
 ### **Flow B: The End User (Embed Team)**
 

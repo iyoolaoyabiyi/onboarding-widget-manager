@@ -1,12 +1,21 @@
 export type Tour = {
   id: string;
   name: string;
-  baseUrl: string;
+  description?: string;
+  allowed_domains: string[];
   steps: number;
   completion: number;
-  status: string;
+  status: 'draft' | 'active' | 'paused' | 'archived';
   updated: string;
-  color: string;
+  theme: 'greyscale' | 'blue' | 'green' | 'red';
+  owner_id: string;
+  avatar_enabled: boolean;
+  min_steps: number;
+  total_views: number;
+  total_completions: number;
+  completion_rate: number;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Step = {
