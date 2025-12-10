@@ -38,10 +38,7 @@ export default function AnalyticsSection({ tourId }: Props) {
           completions: metrics.totalCompletions,
           completionRate: metrics.completionRate,
           averageDuration: metrics.averageDuration,
-          dropOff: metrics.dropOffByStep.map(item => ({
-            step: item.step,
-            percent: item.percentage,
-          })),
+          dropOff: metrics.dropOffByStep,
           recentEvents: recentEvents.map((event) => ({
             tour_id: event.tour_id,
             step: parseInt(event.step_id?.split('_').pop() || '0', 10),
@@ -152,4 +149,3 @@ export default function AnalyticsSection({ tourId }: Props) {
     </section>
   );
 }
-

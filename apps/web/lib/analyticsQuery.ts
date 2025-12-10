@@ -7,14 +7,14 @@ import {
   limit,
 } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
-import type { AnalyticsSession, AnalyticsEvent } from '@/components/dashboard/types';
+import type { AnalyticsSession, AnalyticsEvent, DropOffItem } from '@/components/dashboard/types';
 
 interface AnalyticsMetrics {
   totalViews: number;
   totalCompletions: number;
   completionRate: number;
   averageDuration: number;
-  dropOffByStep: { step: number; percentage: number }[];
+  dropOffByStep: DropOffItem[];
   recentSessions: AnalyticsSession[];
   visitorCount: number;
 }
@@ -144,7 +144,7 @@ export class AnalyticsQueryService {
   private static calculateDropOffByStep(
     sessions: AnalyticsSession[],
     events: AnalyticsEvent[]
-  ): { step: number; percentage: number }[] {
+  ): DropOffItem[] {
     if (sessions.length === 0) return [];
 
     const dropOff: DropOffCalculation = {};
@@ -170,7 +170,7 @@ export class AnalyticsQueryService {
     });
 
     // Calculate drop-off percentage for each step
-    const result: { step: number; percentage: number }[] = [];
+    const result: DropOffItem[] = [];
     let previousViewed = sessions.length;
 
     Object.keys(dropOff)
@@ -182,7 +182,7 @@ export class AnalyticsQueryService {
 
         result.push({
           step,
-          percentage: Math.round(dropOffPercent),
+          percent: Math.round(dropOffPercent),
         });
 
         previousViewed = viewed;
