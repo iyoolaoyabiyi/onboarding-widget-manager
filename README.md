@@ -1,15 +1,15 @@
-# Onboarding Widget - Complete Project Guide
+# Onboarding Widget Manager
 
-This is a onboarding/tour widget system with a dashboard for onboarding tours management.
+Create and manage guided onboarding tours for your website with an intuitive dashboard and lightweight embeddable widget.
 
-## Project Structure
+**Live App:** https://onboarding-widget-app.vercel.app/
 
-```
-├── apps/
-│   ├── widget/          # Embeddable widget (Vite + TypeScript)
-│   └── web/             # Dashboard (Next.js + React)
-└── docs/                # Technical documentation
-```
+## Overview
+
+This is a complete onboarding/tour widget system with:
+- **Dashboard**: Manage tours, define steps, and track analytics
+- **Embeddable Widget**: Lightweight script that guides users through configurable tours
+- **Analytics**: Track user interactions and tour completion rates
 
 ## Quick Start
 
@@ -18,405 +18,282 @@ This is a onboarding/tour widget system with a dashboard for onboarding tours ma
 - Node.js 18+
 - pnpm (recommended) or npm
 
-### Install Dependencies
+### Installation
 
 ```bash
-# From root directory
+# Clone repository and install dependencies
+git clone https://github.com/iyoolaoyabiyi/onboarding-widget-manager
+cd onboarding-widget
 pnpm install
 ```
 
-### Widget App (Vite)
+### Running the Application
+
+#### External Pages and Dashboard (Next.js) - http://localhost:3000
 
 ```bash
-# Navigate to widget directory
-cd apps/widget
-
-# Development server (runs on http://localhost:5174)
-npm run dev
-
-# Build for production
-npm run build
-
-# Build output: dist/onboarding-tour.umd.js (11KB gzipped)
-```
-
-### Dashboard App (Next.js)
-
-```bash
-# Navigate to dashboard directory
 cd apps/web
-
-# Development server (runs on http://localhost:3000)
-npm run dev
-
-# Build for production
-npm run build
+pnpm dev
 ```
 
-## Widget Features
+#### Widget (Vite) - http://localhost:5174
 
-### Core Capabilities
-
-- ✨ **Multi-step Tours**: Create tours with 5+ steps
-- 🎨 **Customizable**: Theme colors and positioning options
-- ⚡ **Lightweight**: Only 11KB gzipped
-- 📊 **Analytics**: Track user interactions
-- 🔄 **Resumable**: Remember user progress
-- 📱 **Responsive**: Works on all devices
-- 🚀 **Fast**: Smooth animations and transitions
-
-### Technical Details
-
-- **Bundle Size**: 11KB (gzipped: 3.62KB)
-- **Framework**: Vanilla TypeScript (no dependencies)
-- **Format**: UMD (Universal Module Definition)
-- **Compatibility**: Works on any website (React, Vue, plain HTML)
-
-### Widget Architecture
-
-```
-src/
-├── index.ts              # Main entry point, public API
-├── tourManager.ts        # Orchestrates tour flow
-├── tourRenderer.ts       # Renders steps and handles navigation
-├── tooltip.ts            # Tooltip positioning and content
-├── configLoader.ts       # Loads tour configuration
-├── styleManager.ts       # Injects CSS styles
-├── analytics.ts          # Tracks user events
-├── constants.ts          # Constants and defaults
-└── types.ts              # TypeScript type definitions
+```bash
+cd apps/widget
+pnpm dev
 ```
 
-## Dashboard Features
+#### Run Both Simultaneously
 
-### Tours Management
-- Create, edit, and delete tours
-- Define steps with custom target elements
-- Customize colors and positioning
-- Generate embed codes
+```bash
+# Terminal 1
+cd apps/web && pnpm dev
+
+# Terminal 2
+cd apps/widget && pnpm dev
+```
+
+## How It Works
+
+### For Tour Creators
+
+1. Sign up and log in to the dashboard
+2. Create a new tour and define at least 5 steps
+3. Specify target elements using CSS selectors
+4. Customize colors and positioning
+5. Copy the generated embed code
+6. Paste the script into your website
+
+### For End Users
+
+1. Visit a website with the embedded tour script
+2. See a guided tour highlighting key interface elements
+3. Navigate through steps with Next/Back buttons
+4. Skip the tour anytime or complete it
+
+## Features
+
+### Dashboard
+- User authentication (Firebase)
+- Create, edit, delete tours
+- Define multi-step tours (minimum 5 steps)
+- Customize theme colors and step positioning
+- Generate embed code snippets
+- View analytics and tour completion metrics
+- Responsive design
+
+### Embeddable Widget
+- Multi-step guided tours
+- Customizable theme colors
+- Smooth animations and transitions
+- Resume capability (remembers user progress)
+- Analytics tracking
+- Works on any website (React, Vue, plain HTML)
+- Lightweight: 11KB gzipped, 3.62KB minified
+- Responsive design for all devices
 
 ### Analytics
 - Real-time event tracking
 - Step completion rates
 - Tour skip metrics
-- Per-tour analytics
+- Per-tour performance insights
 
-### Storage
-- LocalStorage-based persistence (temporary)
-- Ready for backend integration
+## Web Application (Next.js)
+
+The web application consists of two main parts: public-facing external pages and an authenticated dashboard.
+
+### External Pages
+
+Beautiful, animated marketing pages to showcase the product:
+
+- **Landing Page** (`/`): Hero section, features overview, how it works, demo, and documentation preview
+- **About Page** (`/about`): Company vision, mission, and value proposition
+- **Documentation Page** (`/documentation`): Complete integration guide with code examples
+
+**Key Features:**
+- Smooth Framer Motion animations
+- Rotating text and typewriter effects
+- Responsive design for all devices
+- Copy-to-clipboard code snippets
+- Scroll-triggered animations
+- High-performance rendering
+
+### Dashboard
+
+Secure, authenticated interface for managing onboarding tours:
+
+- **Tours Management**: Create, edit, delete tours with 5+ steps
+- **Step Configuration**: Define target elements using CSS selectors
+- **Theme Customization**: Choose from 4 theme colors (blue, green, red, greyscale)
+- **Domain Whitelist**: Restrict tours to specific domains
+- **Embed Code Generation**: Automatic script snippet generation
+- **Analytics Dashboard**: Real-time metrics and completion tracking
+- **Integration Snippet**: Ready-to-copy embed code
+
+**Dashboard Components:**
+- Tours Panel: List and manage all tours
+- Tour Editor: Create and modify tour configurations
+- Analytics Section: View completion rates and metrics
+- Metrics Grid: Quick overview of key statistics
+- Domain Manager: Configure allowed domains
+- Integration Snippet: Copy embed code
+
+**Authentication:**
+- Firebase Auth with email/password and Google OAuth
+- Protected routes for dashboard pages
+- Automatic session management
+- User-specific tour ownership
+
+**For detailed information about components, styling, and development workflows, see [WEB_APP_GUIDE.md](docs/WEB_APP_GUIDE.md).**
+
+## Project Structure
+
+```
+├── apps/
+│   ├── web/             # Dashboard application (Next.js + React)
+│   │   ├── app/         # Pages and layouts
+│   │   ├── components/  # Reusable components
+│   │   ├── hooks/       # Custom React hooks
+│   │   └── lib/         # Utilities and services
+│   ├── widget/          # Embeddable widget (Vite + TypeScript)
+│   └── docs/            # Technical documentation
+└── package.json         # Workspace root configuration
+```
 
 ## Integration Guide
 
-### Embedding the Widget
+### Embedding the Widget on Your Website
 
-1. **Get the embed code from the dashboard**:
-   - Create or select a tour
-   - Copy the embed script code
+1. Create a tour in the dashboard
+2. Copy the generated embed code
+3. Add to your website's HTML:
 
-2. **Add to your website**:
-   ```html
-   <script src="https://your-domain.com/onboarding-tour.umd.js" data-tour-id="tour_12345"></script>
-   ```
+```html
+<script 
+  src="https://onboarding-widget-app.vercel.app/ota-widget.js" 
+  data-tour-id="YOUR_TOUR_ID"
+></script>
+```
 
-3. **Manual initialization** (optional):
-   ```javascript
-   // If not using data-tour-id
-   window.OnboardingTour.init({
-     id: 'tour_custom',
-     name: 'My Tour',
-     theme: 'blue',
-     steps: [
-       {
-         id: 'step_1',
-         order: 1,
-         target_element: '#button-id',
-         title: 'Step 1',
-         content: 'This is step 1',
-         position: 'bottom'
-       }
-       // ... more steps
-     ]
-   });
-   ```
+### For Next.js Projects
 
-### Public API
+If you're integrating into a Next.js application (like your dashboard), use the Next.js Script component:
+
+```jsx
+// app/layout.tsx
+import Script from 'next/script';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Script
+          src="https://onboarding-widget-app.vercel.app/ota-widget.js"
+          strategy="lazyOnInteractive"
+          data-tour-id="YOUR_TOUR_ID"
+        />
+      </body>
+    </html>
+  );
+}
+```
+
+**For complete Next.js integration guide with advanced patterns, see [NEXTJS_INTEGRATION_GUIDE.md](docs/NEXTJS_INTEGRATION_GUIDE.md).**
+
+### Manual Initialization (Optional)
 
 ```javascript
-// Initialize tour
-window.OnboardingTour.init(config)
-
-// Navigation
-window.OnboardingTour.next()       // Go to next step
-window.OnboardingTour.back()       // Go to previous step
-window.OnboardingTour.skip()       // Skip entire tour
-window.OnboardingTour.stop()       // Stop and cleanup
+window.OnboardingTour.init({
+  id: 'my-tour',
+  name: 'Welcome Tour',
+  theme: 'blue',
+  steps: [
+    {
+      id: 'step_1',
+      order: 1,
+      target_element: '#my-button',
+      title: 'Get Started',
+      content: 'Click here to begin',
+      position: 'bottom'
+    }
+    // ... add at least 5 steps
+  ]
+});
 ```
 
-## Tour Configuration Format
+## Technical Documentation
 
-```typescript
-interface TourConfig {
-  id: string;                          // Unique tour ID
-  name: string;                        // Display name
-  description?: string;                // Tour description
-  theme: 'blue' | 'green' | 'red' | 'greyscale';  // Named theme
-  allowed_domains: string[];           // Domain whitelist
-  owner_id: string;                    // User ID
-  status: 'draft' | 'active' | 'paused' | 'archived';
-  avatar_enabled: boolean;             // Show avatar
-  min_steps: number;                   // Minimum steps
-  total_views: number;                 // View count
-  total_completions: number;           // Completion count
-  completion_rate: number;             // Completion %
-  steps: TourStep[];                   // Array of at least 5 steps
-  created_at: string;                  // ISO timestamp
-  updated_at: string;                  // ISO timestamp
-  last_viewed_at?: string;             // Last view timestamp
-}
+Detailed technical documentation is available in the `/docs` folder:
 
-interface TourStep {
-  id: string;                          // Unique step ID (e.g., 'step_01')
-  order: number;                       // Step order (1-indexed)
-  target_element: string;              // CSS selector (e.g., '#button', '.class')
-  title: string;                       // Step title
-  content: string;                     // Step description
-  position: 'top' | 'bottom' | 'left' | 'right' | 'center';
-  image_url?: string;                  // Optional image
-  video_url?: string;                  // Optional video
-  cta_text?: string;                   // Call-to-action text
-  cta_url?: string;                    // Call-to-action URL
-  created_at?: string;                 // ISO timestamp
-  updated_at?: string;                 // ISO timestamp
-}
+- **[NEXTJS_INTEGRATION_GUIDE.md](docs/NEXTJS_INTEGRATION_GUIDE.md)** - Complete guide on integrating this widget into your Next.js projects with code examples and best practices
+- **[WEB_APP_GUIDE.md](docs/WEB_APP_GUIDE.md)** - Complete guide to external pages and dashboard, including component descriptions and development workflows
+- **[WIDGET_DEVELOPMENT.md](docs/WIDGET_DEVELOPMENT.md)** - Complete development guide, setup instructions, and troubleshooting for the embeddable widget
+- **[onboarding-widget-technical.md](docs/onboarding-widget-technical.md)** - Technical requirements, data schemas, and API specifications
+- **[USER_FLOW.md](docs/USER_FLOW.md)** - User flows and use cases for creators and end users
+- **[FIRESTORE_RULES.md](docs/FIRESTORE_RULES.md)** - Security rules and data protection implementation
+
+## Building for Production
+
+### Build Widget
+
+```bash
+cd apps/widget
+pnpm build
+# Output: dist/ota-widget.js (11KB gzipped)
 ```
 
-## Analytics Events
+### Build Dashboard
 
-The widget tracks the following events:
-
-```typescript
-interface AnalyticsEvent {
-  tour_id: string;         // Which tour
-  step_id?: string;        // Which step (optional)
-  action: 'started' | 'completed' | 'skipped' | 'tour_finished';
-  timestamp: string;       // ISO timestamp
-}
+```bash
+cd apps/web
+pnpm build
+# Output: .next/ directory
 ```
 
-### Setting Up Analytics Backend
+### Build All
 
-```typescript
-// In widget initialization
-import { Analytics } from './analytics';
-
-Analytics.setEndpoint('https://your-api.com/analytics');
+```bash
+pnpm run build
 ```
+
+## Deployment
+
+The application is deployed on Vercel:
+- **Dashboard**: https://onboarding-widget-app.vercel.app/
+- **Widget Script**: https://onboarding-widget-app.vercel.app/ota-widget.js
+
+## Technology Stack
+
+- **Frontend**: Next.js, React, TypeScript
+- **Widget**: Vite, Vanilla TypeScript
+- **Authentication**: Firebase Auth
+- **Database**: Firestore
+- **Styling**: CSS-in-JS, GSAP animations
+- **Deployment**: Vercel
 
 ## Development Workflow
 
-### 1. Create/Edit Tours
-- Open dashboard at http://localhost:3000
-- Create a new tour with at least 5 steps
-- Define target elements by CSS selector
-
-### 2. Test Widget
-- Open widget demo at http://localhost:5174
-- Start the tour
-- Test navigation, animations, and responsiveness
-
-### 3. Check Analytics
-- View analytics in dashboard
-- Verify events are being tracked correctly
-
-### 4. Deploy
-- Build widget: `npm run build` (in apps/widget)
-- Build dashboard: `npm run build` (in apps/web)
-- Deploy to Vercel or similar
-
-## File Structure Details
-
-### Widget Configuration
-
-Located in `public/mock-tour.json` during development:
-
-```json
-{
-  "id": "tour_demo_001",
-  "name": "Welcome Tour",
-  "description": "Welcome users to the product",
-  "theme": "blue",
-  "allowed_domains": ["example.com"],
-  "owner_id": "user_123",
-  "status": "active",
-  "avatar_enabled": false,
-  "min_steps": 5,
-  "total_views": 0,
-  "total_completions": 0,
-  "completion_rate": 0,
-  "created_at": "2024-12-10T00:00:00Z",
-  "updated_at": "2024-12-10T00:00:00Z",
-  "steps": [
-    {
-      "id": "step_01",
-      "order": 1,
-      "target_element": "#signup-btn",
-      "title": "Welcome!",
-      "content": "This is the first step.",
-      "position": "bottom"
-    }
-    // ... 4+ more steps
-  ]
-}
-```
-
-## TypeScript Support
-
-All code is fully typed with TypeScript. Key types:
-
-- `TourConfig` - Tour configuration
-- `TourStep` - Individual step definition
-- `TooltipPosition` - Positioning enum
-- `AnalyticsEvent` - Analytics event structure
-- `AnalyticsAction` - Action type union
-
-## Performance Metrics
-
-- **Bundle Size**: 11KB uncompressed, 3.62KB gzipped
-- **Load Time**: <200ms typical
-- **Animation Performance**: 60fps smooth transitions
-- **Memory Usage**: <2MB typical
-
-## Browser Support
-
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Testing the Widget
-
-### Manual Testing Steps
-
-1. **Start the dev server**:
-   ```bash
-   cd apps/widget && npm run dev
-   ```
-
-2. **Open demo page**:
-   ```
-   http://localhost:5174/public/demo.html
-   ```
-
-3. **Test scenarios**:
-   - Click "Start Tour" button
-   - Navigate through all steps
-   - Test "Back" button
-   - Test "Skip Tour" button
-   - Reload page and verify resume works
-   - Test on mobile device
-
-4. **Check console** for analytics logs
-
-## Production Deployment
-
-### Widget Deployment
-
-1. Build the widget:
-   ```bash
-   cd apps/widget && npm run build
-   ```
-
-2. Upload to CDN:
-   ```
-   dist/onboarding-tour.umd.js → https://cdn.example.com/onboarding-tour.umd.js
-   dist/mock-tour.json → https://api.example.com/tours
-   ```
-
-3. Update embed script in dashboard
-
-### Dashboard Deployment
-
-1. Build Next.js app:
-   ```bash
-   cd apps/web && npm run build
-   ```
-
-2. Deploy to Vercel or Netlify
-
-## Configuration for Production
-
-### Environment Variables (Dashboard)
-
-```env
-NEXT_PUBLIC_API_URL=https://your-api.com
-NEXT_PUBLIC_WIDGET_URL=https://cdn.example.com/onboarding-tour.umd.js
-```
-
-### Widget Analytics Endpoint
-
-Update in your backend integration:
-
-```javascript
-Analytics.setEndpoint('https://your-api.com/analytics');
-```
-
-## Troubleshooting
-
-### Widget doesn't load
-- Check if script URL is correct
-- Verify CORS headers allow your domain
-- Check browser console for errors
-
-### Tour steps don't highlight
-- Verify CSS selectors exist on the page
-- Check z-index conflicts with other overlays
-- Ensure elements are not hidden
-
-### Analytics not tracking
-- Verify endpoint URL is correct
-- Check network tab for failed requests
-- Enable console logs for debugging
-
-### Styles don't apply
-- Check if CSS is injected (look for `onboarding-tour-styles`)
-- Verify theme color is valid hex
-
-## Next Steps for Team B
-
-The dashboard is temporary and designed for testing. Team B should:
-
-1. Build a permanent dashboard with:
-   - User authentication
-   - Database backend
-   - Analytics dashboard
-   - Team collaboration features
-
-2. Implement API endpoints for:
-   - Tour CRUD operations
-   - Analytics persistence
-   - User management
-
-3. Replace localStorage with proper backend
-
-4. Add advanced features:
-   - Tour versioning
-   - A/B testing
-   - User segmentation
-   - Advanced analytics
-
-## License
-
-MIT License
-
-## Support
-
-For issues or questions, please refer to the technical documentation in `/docs/onboarding-widget-technical.md`
-
-## Linting
 ```bash
-pnpm run lint           # lints both apps
+# Install dependencies
+pnpm install
+
+# Start development servers
+pnpm dev
+
+# Run linting
+pnpm run lint
+
+# Format code
+pnpm run format
+
+# Build for production
+pnpm run build
 ```
 
-## Notes
-- Follow `docs/task.md` for feature requirements (marketing, dashboard, embeddable widget, authentication).
-- Each app keeps its own scripts; workspace helpers proxy to them.
+## Support & Issues
+
+For questions, bugs, or feature requests:
+1. Check the documentation in `/docs` folder
+2. Review existing GitHub issues
+3. Create a new issue with detailed information

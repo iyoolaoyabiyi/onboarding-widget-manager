@@ -20,9 +20,11 @@ interface TourEditorProps {
   steps: Step[];
   onSave: (tour: Partial<Tour>) => Promise<void>;
   onAddStep: () => void;
+  onEditStep: (order: number) => void;
+  onDeleteStep: (order: number) => void;
 }
 
-export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEditorProps) {
+export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep, onDeleteStep }: TourEditorProps) {
   const [formData, setFormData] = useState({
     name: tour?.name || '',
     description: tour?.description || '',
@@ -69,7 +71,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
 
   return (
     <div className="space-y-6">
-      <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6">
+      <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6" id='tour-editor-header'>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">Tour Configuration</h2>
@@ -83,7 +85,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
         <div className="space-y-4">
           {/* Basic Info */}
           <div className="grid md:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-2" id='tour-name-input'>
               <span className="text-sm text-gray-300">Tour Name *</span>
               <input
                 type="text"
@@ -94,7 +96,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
               />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-2" id='tour-status-input'>
               <span className="text-sm text-gray-300">Status</span>
               <select
                 value={formData.status}
@@ -109,7 +111,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
             </label>
           </div>
 
-          <label className="flex flex-col gap-2">
+          <label className="flex flex-col gap-2" id='tour-desc-input'>
             <span className="text-sm text-gray-300">Description</span>
             <textarea
               value={formData.description}
@@ -121,7 +123,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
           </label>
 
           {/* Theme & Avatar */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-4" id='other-tour-settings'>
             <label className="flex flex-col gap-2">
               <span className="text-sm text-gray-300">Theme</span>
               <div className="flex items-center gap-3">
@@ -198,10 +200,16 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5">
+                  <button
+                    onClick={() => onEditStep(step.order)}
+                    className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5"
+                  >
                     Edit
                   </button>
-                  <button className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5">
+                  <button
+                    onClick={() => onDeleteStep(step.order)}
+                    className="px-3 py-1 rounded-lg border border-white/15 text-xs hover:bg-white/5 text-red-300"
+                  >
                     Delete
                   </button>
                 </div>
