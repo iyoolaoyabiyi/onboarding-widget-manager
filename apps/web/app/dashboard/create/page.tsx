@@ -118,7 +118,7 @@ export default function CreateTourPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
+      <div className="min-h-screen text-white">
         <div className="max-w-5xl mx-auto px-6 py-10">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">

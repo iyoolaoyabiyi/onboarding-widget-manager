@@ -221,10 +221,10 @@ export default function TourEditor({ tour, steps, onSave, onAddStep }: TourEdito
           disabled={isSaving || !hasSteps}
           className={`px-6 py-3 rounded-lg font-semibold transition-all ${
             saved
-              ? 'bg-green-500 text-black'
+              ? 'bg-green-500'
               : isSaving
-                ? 'bg-white/50 text-black/50'
-                : 'bg-white text-black hover:opacity-90'
+                ? 'bg-blue-500'
+                : 'bg-blue-500 hover:opacity-90'
           } ${!hasSteps ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {saved ? '✓ Saved' : isSaving ? 'Saving...' : 'Save Tour'}

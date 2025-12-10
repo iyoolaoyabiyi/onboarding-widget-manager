@@ -14,7 +14,7 @@ export default function Documentation() {
   };
 
   const codeExamples = {
-    installation: `<script src="https://cdn.yoursite.com/tour.js"></script>`,
+    installation: `<script src="https://onboarding-tour-app.web.app/ota-widget.js" data-tour-id="tour_1765353019027"></script>`,
     initialization: `<script>
   Tour.init({
     steps: [

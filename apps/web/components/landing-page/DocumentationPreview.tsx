@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function DocumentationPreview() {
     const [copied, setCopied] = useState(false);
     
-    const codeExample = `<script src="https://yourproject.com/embed.js" data-tour-id="your-tour-id"></script>`;
+    const codeExample = `<script src="https://onboarding-tour-app.web.app/ota-widget.js" data-tour-id="tour_1765353019027"></script>`;
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(codeExample);

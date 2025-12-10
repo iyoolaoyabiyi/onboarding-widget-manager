@@ -221,7 +221,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={() => router.push("/dashboard/create")}
-              className="px-6 py-3 rounded-lg bg-white text-black font-semibold hover:opacity-90"
+              className="px-6 py-3 rounded-lg bg-blue-500 font-semibold hover:opacity-90"
             >
               + Create Tour
             </button>
