@@ -94,12 +94,12 @@ export class FirestoreService {
   /**
    * Get all tours for current user
    */
-  static async getUserTours(): Promise<TourConfig[]> {
-    const userId = this.getCurrentUserId();
-    if (!userId) return [];
+  static async getUserTours(userId?: string): Promise<TourConfig[]> {
+    const resolvedUserId = userId ?? this.getCurrentUserId();
+    if (!resolvedUserId) return [];
 
     const toursRef = collection(this.db, 'tours');
-    const q = query(toursRef, where('owner_id', '==', userId));
+    const q = query(toursRef, where('owner_id', '==', resolvedUserId));
     const snap = await getDocs(q);
 
     return snap.docs.map((doc) => doc.data() as TourConfig);

@@ -26,7 +26,7 @@ export default function ToursPanel({ tours, onSelectTour, onDeleteTour, selected
   };
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 sticky top-6">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 sticky top-6" id="tour-list">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold">Tours</h3>

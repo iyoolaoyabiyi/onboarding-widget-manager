@@ -2,19 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import TourEditorNew from "@/components/dashboard/TourEditorNew";
 import ToursPanelNew from "@/components/dashboard/ToursPanelNew";
+import StepModal from "@/components/dashboard/StepModal";
 import { FirestoreService } from "@/lib/firestore";
 import type { Tour, Step } from "@/components/dashboard/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [tours, setTours] = useState<Tour[]>([]);
   const [currentTour, setCurrentTour] = useState<Tour | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isStepModalOpen, setIsStepModalOpen] = useState(false);
+  const [editingStep, setEditingStep] = useState<Step | null>(null);
 
   const widgetSrc =
     process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
@@ -25,11 +31,16 @@ export default function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        // Primary: user-owned tours; Fallback: all tours (useful if owner_id missing in data)
-        let userTours = await FirestoreService.getUserTours();
-        if (!userTours.length) {
-          userTours = await FirestoreService.getAllTours();
+
+        if (!user) {
+          setTours([]);
+          setCurrentTour(null);
+          setSteps([]);
+          return;
         }
+
+        // Only load tours owned by the current user
+        const userTours = await FirestoreService.getUserTours(user.uid);
 
         // Convert Firestore format to dashboard format
         const convertedTours: Tour[] = userTours.map((tour) => ({
@@ -77,8 +88,10 @@ export default function Dashboard() {
       }
     };
 
-    loadTours();
-  }, []);
+    if (!authLoading) {
+      loadTours();
+    }
+  }, [authLoading, user]);
 
   const handleSelectTour = async (tour: Tour) => {
     try {
@@ -104,6 +117,19 @@ export default function Dashboard() {
     }
 
     try {
+      // Convert Step[] to Firestore TourStep[] format
+      const convertedSteps = steps.map((step) => ({
+        id: `${currentTour.id}_step_${step.order}`,
+        tour_id: currentTour.id,
+        order: step.order,
+        target_element: step.target,
+        position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
+        title: step.text,
+        content: step.text,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
       // Prepare data for Firestore format
       const updateData = {
         name: updates.name,
@@ -112,8 +138,8 @@ export default function Dashboard() {
         avatar_enabled: updates.avatar_enabled,
         allowed_domains: updates.allowed_domains,
         status: updates.status,
+        steps: convertedSteps,
         updated_at: new Date().toISOString(),
-        // Note: steps are preserved from existing tour
       };
 
       await FirestoreService.updateTour(currentTour.id, updateData);
@@ -127,8 +153,11 @@ export default function Dashboard() {
 
       setCurrentTour(updated);
       setTours(tours.map((t) => (t.id === currentTour.id ? updated : t)));
+      toast.success("Tour saved successfully");
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : "Failed to save tour");
+      const message = err instanceof Error ? err.message : "Failed to save tour";
+      toast.error(message);
+      throw new Error(message);
     }
   };
 
@@ -149,6 +178,57 @@ export default function Dashboard() {
     };
 
     setSteps([...steps, newStep]);
+  };
+
+  const handleEditStep = (order: number) => {
+    const step = steps.find((s) => s.order === order);
+    if (step) {
+      setEditingStep(step);
+      setIsStepModalOpen(true);
+    }
+  };
+
+  const handleDeleteStep = (order: number) => {
+    const updated = steps
+      .filter((s) => s.order !== order)
+      .map((s, idx) => ({ ...s, order: idx + 1 }));
+    setSteps(updated);
+  };
+
+  const handleSaveStep = async (updatedStep: Step) => {
+    if (!currentTour) return;
+
+    const newSteps = editingStep
+      ? steps.map((s) => (s.order === editingStep.order ? updatedStep : s))
+      : [...steps, updatedStep];
+
+    setSteps(newSteps);
+    setEditingStep(null);
+    setIsStepModalOpen(false);
+
+    // Auto-save to Firestore
+    try {
+      const convertedSteps = newSteps.map((step) => ({
+        id: `${currentTour.id}_step_${step.order}`,
+        tour_id: currentTour.id,
+        order: step.order,
+        target_element: step.target,
+        position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
+        title: step.text,
+        content: step.text,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      await FirestoreService.updateTour(currentTour.id, {
+        steps: convertedSteps,
+        updated_at: new Date().toISOString(),
+      });
+      toast.success("Step saved successfully");
+    } catch (err) {
+      console.error('Failed to save steps:', err);
+      toast.error('Failed to save step changes');
+    }
   };
 
   const handleDeleteTour = async (tourId: string) => {
@@ -172,8 +252,10 @@ export default function Dashboard() {
           setSteps([]);
         }
       }
+      toast.success('Tour deleted successfully');
     } catch (err) {
-      alert('Failed to delete tour: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error(`Failed to delete tour: ${message}`);
       console.error('Error deleting tour:', err);
     }
   };
@@ -219,7 +301,8 @@ export default function Dashboard() {
               <h1 className="text-3xl font-bold">Dashboard</h1>
               <p className="text-gray-400 mt-2">Manage and analyze your onboarding tours</p>
             </div>
-            <button
+            <button 
+              id="create-tour-button"
               onClick={() => router.push("/dashboard/create")}
               className="px-6 py-3 rounded-lg bg-white text-black font-semibold hover:opacity-90"
             >
@@ -252,21 +335,24 @@ export default function Dashboard() {
 
               {/* Tour Editor */}
               {currentTour && (
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2" id="tour-editor">
                   <TourEditorNew
                     tour={currentTour}
                     steps={steps}
                     onSave={handleSaveTour}
                     onAddStep={handleAddStep}
+                    onEditStep={handleEditStep}
+                    onDeleteStep={handleDeleteStep}
                   />
                 </div>
               )}
             </div>
           )}
 
+
           {/* Integration Help */}
           {currentTour && steps.length >= 5 && (
-            <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-6">
+            <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-6" id="widget-link">
               <h3 className="text-lg font-semibold text-green-400 mb-4">Ready to Deploy</h3>
               <p className="text-gray-300 mb-4">
                 Your tour is ready! Copy this script and add it to your website to start the tour:
@@ -277,12 +363,22 @@ export default function Dashboard() {
                 </code>
               </div>
               <p className="text-xs text-gray-400 mt-3">
-                Make sure {currentTour.allowed_domains.join(", ")} are added to your tour's allowed domains.
+                Make sure {currentTour.allowed_domains.join(", ")} are added to your tour&apos;s allowed domains.
               </p>
             </div>
           )}
         </div>
       </div>
+
+      <StepModal
+        isOpen={isStepModalOpen}
+        step={editingStep}
+        onClose={() => {
+          setIsStepModalOpen(false);
+          setEditingStep(null);
+        }}
+        onSave={handleSaveStep}
+      />
     </ProtectedRoute>
   );
 }
