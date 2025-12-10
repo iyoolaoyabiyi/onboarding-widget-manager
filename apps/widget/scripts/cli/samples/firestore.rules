@@ -1,0 +1,90 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Tours collection - read-only for widget, write for authenticated dashboard users
+    match /tours/{tourId} {
+      // Widget can read tours (for loading configurations)
+      allow read: if true;
+      
+      // Only owners can create/update/delete their own tours
+      allow create: if request.auth != null 
+        && request.resource.data.id != null
+        && request.resource.data.name != null
+        && request.resource.data.owner_id == request.auth.uid
+        && request.resource.data.theme in ['greyscale', 'blue', 'green', 'red']
+        && request.resource.data.status in ['draft', 'active', 'paused', 'archived']
+        && request.resource.data.allowed_domains is list
+        && request.resource.data.allowed_domains.size() > 0
+        && request.resource.data.steps is list
+        && request.resource.data.steps.size() >= 5;
+      
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.owner_id
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.owner_id == resource.data.owner_id
+        && request.resource.data.theme in ['greyscale', 'blue', 'green', 'red']
+        && request.resource.data.status in ['draft', 'active', 'paused', 'archived']
+        && request.resource.data.allowed_domains is list
+        && request.resource.data.allowed_domains.size() > 0;
+      
+      allow delete: if request.auth != null && request.auth.uid == resource.data.owner_id;
+      
+      // Steps subcollection (new schema for scalability)
+      match /steps/{stepId} {
+        allow read: if true;
+        allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/tours/$(tourId)).data.owner_id == request.auth.uid;
+      }
+      
+      // Legacy sessions subcollection (keep for backward compatibility)
+      match /sessions/{sessionId} {
+        allow read: if true;
+        allow create: if true;
+        allow update: if true;
+        
+        // Events subcollection
+        match /events/{eventId} {
+          allow read: if true;
+          allow create: if true;
+        }
+      }
+    }
+    
+    // New flat analytics collection (improved query performance)
+    match /analytics/{sessionId} {
+      // Validate analytics session schema
+      allow create: if request.resource.data.session_id != null
+        && request.resource.data.tour_id != null
+        && request.resource.data.started_at != null
+        && request.resource.data.domain != null
+        && request.resource.data.user_agent != null
+        && request.resource.data.status in ['in_progress', 'completed', 'skipped', 'abandoned'];
+      
+      // Widget can read analytics (for current session)
+      allow read: if true;
+      
+      // Allow updates for session completion/status
+      allow update: if true;
+      
+      // Events subcollection for detailed tracking
+      match /events/{eventId} {
+        // Validate analytics event schema
+        allow create: if request.resource.data.event_id != null
+          && request.resource.data.session_id != null
+          && request.resource.data.tour_id != null
+          && request.resource.data.action != null
+          && request.resource.data.timestamp != null;
+        
+        allow read: if true;
+      }
+    }
+    
+    // Users collection (for dashboard authentication)
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+

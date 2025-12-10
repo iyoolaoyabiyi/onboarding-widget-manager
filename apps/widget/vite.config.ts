@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'OnboardingTour',
-      fileName: (format) => `ota-widget.${format}.js`,
+      fileName: () => 'ota-widget.js',
       formats: ['umd'],
     },
     outDir: 'dist',
