@@ -2,11 +2,21 @@ import { motion } from "framer-motion";
 import { Edit3, Eye, Plus, Save, Code2, Rocket, Info } from "lucide-react";
 import { Step } from "./types";
 
+// Theme definitions matching widget
+const THEMES = {
+  greyscale: { bg: '#1a1a1a', name: 'Greyscale' },
+  blue: { bg: '#1e3a8a', name: 'Blue' },
+  green: { bg: '#14532d', name: 'Green' },
+  red: { bg: '#7f1d1d', name: 'Red' },
+} as const;
+
+type ThemeName = keyof typeof THEMES;
+
 type Props = {
   steps: Step[];
   defaultTourName?: string;
   defaultBaseUrl?: string;
-  defaultThemeColor?: string;
+  defaultTheme?: ThemeName;
   defaultCtaCopy?: string;
 };
 
@@ -14,7 +24,7 @@ export default function TourEditor({
   steps,
   defaultTourName,
   defaultBaseUrl,
-  defaultThemeColor,
+  defaultTheme = 'blue',
   defaultCtaCopy,
 }: Props) {
   const hasSteps = steps.length > 0;
@@ -53,16 +63,22 @@ export default function TourEditor({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="text-sm text-gray-300 font-medium">Theme Color</span>
+          <span className="text-sm text-gray-300">Theme</span>
           <div className="flex items-center gap-3">
+            <select
+              className="flex-1 px-4 py-3 rounded-lg bg-black/30 border border-white/10 focus:outline-none focus:border-white/30 text-white"
+              defaultValue={defaultTheme}
+            >
+              {(Object.entries(THEMES) as Array<[ThemeName, typeof THEMES[ThemeName]]>).map(([key, { name }]) => (
+                <option key={key} value={key} className="bg-black text-white">
+                  {name}
+                </option>
+              ))}
+            </select>
             <div
-              className="h-12 w-12 rounded-lg border-2 border-gray-700 shrink-0 shadow-inner"
-              style={{ background: defaultThemeColor ?? "#0070F3" }}
-            />
-            <input
-              className="flex-1 px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
-              defaultValue={defaultThemeColor ?? ""}
-              placeholder="#0070F3"
+              className="h-10 w-10 rounded-lg border border-white/10 shrink-0"
+              style={{ backgroundColor: THEMES[defaultTheme].bg }}
+              title={THEMES[defaultTheme].name}
             />
           </div>
         </label>

@@ -1,4 +1,4 @@
-# Onboarding Widget
+r# Onboarding Widget
 
 A Vite-based React widget that creates an embeddable guided tour script for web applications.
 
@@ -76,7 +76,7 @@ pnpm run lint
 - `src/` - React components and logic
 - `public/` - Static assets
   - `embed-demo.html` - Demo HTML for testing widget embedding
-  - `mock-tour.json` - Sample tour configuration
+
 - `dist/` - Built output (generated)
 
 ## Usage
@@ -91,6 +91,8 @@ The widget is built as a UMD module that can be embedded in any web application:
   });
 </script>
 ```
+
+## Testing
 
 For test, visit `/embed-demo` route
 

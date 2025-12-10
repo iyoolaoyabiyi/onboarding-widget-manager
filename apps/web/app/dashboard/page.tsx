@@ -1,202 +1,287 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-
-import AnalyticsSection from "@/components/dashboard/AnalyticsSection";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import IntegrationSnippet from "@/components/dashboard/IntegrationSnippet";
-import MetricsGrid from "@/components/dashboard/MetricsGrid";
-import OnboardingEmpty from "@/components/dashboard/OnboardingEmpty";
-import TourEditor from "@/components/dashboard/TourEditor";
-import ToursPanel from "@/components/dashboard/ToursPanel";
-import CreateTourModal from "@/components/dashboard/CreateTourModal";
-import {
-  DropOffItem,
-  EventEntry,
-  Metric,
-  Step,
-  Tour,
-} from "@/components/dashboard/types";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-
-const mockTours: Tour[] = [
-  {
-    id: "tour_888",
-    name: "My App Onboarding",
-    baseUrl: "https://myapp.com",
-    steps: 5,
-    completion: 65,
-    status: "Live",
-    updated: "2h ago",
-    color: "#0070F3",
-  },
-  {
-    id: "tour_456",
-    name: "Settings Walkthrough",
-    baseUrl: "https://myapp.com/settings",
-    steps: 4,
-    completion: 52,
-    status: "Draft",
-    updated: "Yesterday",
-    color: "#00FF9C",
-  },
-];
-
-const mockSteps: Step[] = [
-  {
-    order: 1,
-    target: "#nav-logo",
-    text: "Welcome to the app!",
-    position: "Bottom",
-  },
-  {
-    order: 2,
-    target: "#settings-btn",
-    text: "Configure your profile here.",
-    position: "Left",
-  },
-  {
-    order: 3,
-    target: "#chart",
-    text: "Track your product health.",
-    position: "Right",
-  },
-];
-
-const mockMetrics: Metric[] = [
-  { label: "Total Views", value: 1200 },
-  { label: "Completion Rate", value: 65, suffix: "%" },
-  { label: "Highest Drop-off", value: "Step 3" },
-];
-
-const mockDropOff: DropOffItem[] = [
-  { step: 1, percent: 93 },
-  { step: 2, percent: 86 },
-  { step: 3, percent: 79 },
-  { step: 4, percent: 72 },
-  { step: 5, percent: 65 },
-];
-
-const mockEvents: EventEntry[] = [
-  { tour_id: "tour_888", step: 1, action: "completed" },
-  { tour_id: "tour_888", step: 2, action: "completed" },
-  { tour_id: "tour_888", step: 3, action: "skipped" },
-  { tour_id: "tour_456", step: 1, action: "completed" },
-];
+import TourEditorNew from "@/components/dashboard/TourEditorNew";
+import ToursPanelNew from "@/components/dashboard/ToursPanelNew";
+import { FirestoreService } from "@/lib/firestore";
+import type { Tour, Step } from "@/components/dashboard/types";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [tours, setTours] = useState<Tour[]>([]);
+  const [currentTour, setCurrentTour] = useState<Tour | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
-  const [metrics, setMetrics] = useState<Metric[]>([]);
-  const [dropOff, setDropOff] = useState<DropOffItem[]>([]);
-  const [recentEvents, setRecentEvents] = useState<EventEntry[]>([]);
-  const [views, setViews] = useState<number>(0);
-  const [completions, setCompletions] = useState<number>(0);
-  const [showCreate, setShowCreate] = useState<boolean>(false);
-
-  const activeTour = tours[0];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const widgetSrc =
     process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
-  const hasTours = tours.length > 0;
+
+  // Load tours from Firestore
+  useEffect(() => {
+    const loadTours = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        // Primary: user-owned tours; Fallback: all tours (useful if owner_id missing in data)
+        let userTours = await FirestoreService.getUserTours();
+        if (!userTours.length) {
+          userTours = await FirestoreService.getAllTours();
+        }
+
+        // Convert Firestore format to dashboard format
+        const convertedTours: Tour[] = userTours.map((tour) => ({
+          id: tour.id,
+          name: tour.name,
+          description: tour.description,
+          allowed_domains: tour.allowed_domains || [],
+          steps: tour.steps?.length || 0,
+          completion: tour.completion_rate || 0,
+          status: tour.status,
+          updated: new Date(tour.updated_at).toLocaleDateString(),
+          theme: tour.theme,
+          owner_id: tour.owner_id,
+          avatar_enabled: tour.avatar_enabled,
+          min_steps: tour.min_steps || 5,
+          total_views: tour.total_views || 0,
+          total_completions: tour.total_completions || 0,
+          completion_rate: tour.completion_rate || 0,
+          created_at: tour.created_at,
+          updated_at: tour.updated_at,
+        }));
+
+        setTours(convertedTours);
+
+        if (convertedTours.length > 0) {
+          setCurrentTour(convertedTours[0]);
+          // Load steps for the current tour
+          const tourData = await FirestoreService.getTour(convertedTours[0].id);
+          if (tourData?.steps) {
+            const convertedSteps: Step[] = tourData.steps.map((step) => ({
+              order: step.order,
+              target: step.target_element,
+              text: step.title,
+              position: step.position,
+            }));
+            setSteps(convertedSteps);
+          }
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to load tours";
+        setError(message);
+        console.error("Error loading tours:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTours();
+  }, []);
+
+  const handleSelectTour = async (tour: Tour) => {
+    try {
+      setCurrentTour(tour);
+      const tourData = await FirestoreService.getTour(tour.id);
+      if (tourData?.steps) {
+        const convertedSteps: Step[] = tourData.steps.map((step) => ({
+          order: step.order,
+          target: step.target_element,
+          text: step.title,
+          position: step.position,
+        }));
+        setSteps(convertedSteps);
+      }
+    } catch (err) {
+      console.error("Error loading tour:", err);
+    }
+  };
+
+  const handleSaveTour = async (updates: Partial<Tour>) => {
+    if (!currentTour) {
+      throw new Error("No tour selected");
+    }
+
+    try {
+      // Prepare data for Firestore format
+      const updateData = {
+        name: updates.name,
+        description: updates.description,
+        theme: updates.theme,
+        avatar_enabled: updates.avatar_enabled,
+        allowed_domains: updates.allowed_domains,
+        status: updates.status,
+        updated_at: new Date().toISOString(),
+        // Note: steps are preserved from existing tour
+      };
+
+      await FirestoreService.updateTour(currentTour.id, updateData);
+
+      // Update local state
+      const updated: Tour = {
+        ...currentTour,
+        ...updates,
+        updated: new Date().toLocaleDateString(),
+      };
+
+      setCurrentTour(updated);
+      setTours(tours.map((t) => (t.id === currentTour.id ? updated : t)));
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : "Failed to save tour");
+    }
+  };
+
+  const handleAddStep = () => {
+    if (!currentTour) return;
+
+    const newOrder = steps.length + 1;
+    if (newOrder > 10) {
+      alert("Maximum 10 steps allowed");
+      return;
+    }
+
+    const newStep: Step = {
+      order: newOrder,
+      target: "#element-id",
+      text: `Step ${newOrder}`,
+      position: "bottom",
+    };
+
+    setSteps([...steps, newStep]);
+  };
+
+  const handleDeleteTour = async (tourId: string) => {
+    if (!confirm('Are you sure you want to delete this tour? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await FirestoreService.deleteTour(tourId);
+      
+      // Remove from local state
+      const updatedTours = tours.filter(t => t.id !== tourId);
+      setTours(updatedTours);
+      
+      // Select another tour or clear selection
+      if (currentTour?.id === tourId) {
+        if (updatedTours.length > 0) {
+          handleSelectTour(updatedTours[0]);
+        } else {
+          setCurrentTour(null);
+          setSteps([]);
+        }
+      }
+    } catch (err) {
+      alert('Failed to delete tour: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      console.error('Error deleting tour:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading tours...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-400 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-lg bg-white text-black font-semibold hover:opacity-90"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
-      <div className="relative min-h-screen w-full text-white overflow-hidden">
-        {/* Grid Background */}
-        <div className="fixed inset-0 w-full bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-20 pointer-events-none" />
-        
-        {/* Animated Gradient Orbs */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <motion.div
-            className="absolute -top-40 -left-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-600/20 to-blue-400/10 rounded-full blur-3xl"
-            animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute -bottom-40 -right-40 w-60 h-60 sm:w-80 sm:h-80 bg-linear-to-br from-blue-500/20 to-blue-600/10 rounded-full blur-3xl"
-            animate={{ x: [0, -100, 0], y: [0, 50, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-linear-to-br from-blue-700/10 to-blue-500/5 rounded-full blur-3xl"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
+      <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,#1a1a1a_0%,#0a0a0a_50%)] text-white">
+        <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Dashboard</h1>
+              <p className="text-gray-400 mt-2">Manage and analyze your onboarding tours</p>
+            </div>
+            <button
+              onClick={() => router.push("/dashboard/create")}
+              className="px-6 py-3 rounded-lg bg-white text-black font-semibold hover:opacity-90"
+            >
+              + Create Tour
+            </button>
+          </div>
 
-        {/* Floating Elements */}
-        <div className="fixed inset-0 pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-blue-500/30 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 2 + Math.random() * 2, delay: i * 0.2, repeat: Infinity }}
-            />
-          ))}
-        </div>
-
-        {/* Main Content */}
-        <div className="relative z-10">
-          {!hasTours ? (
-            <div className="flex items-center justify-center min-h-screen px-6 py-10">
-              <div className="w-full max-w-6xl">
-                <OnboardingEmpty onCreate={() => setShowCreate(true)} />
-              </div>
+          {tours.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
+              <h2 className="text-2xl font-semibold mb-2">No tours yet</h2>
+              <p className="text-gray-400 mb-6">Create your first onboarding tour to get started</p>
+              <button
+                onClick={() => router.push("/dashboard/create")}
+                className="px-6 py-3 rounded-lg bg-white text-black font-semibold hover:opacity-90 inline-block"
+              >
+                Create Your First Tour
+              </button>
             </div>
           ) : (
-            <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
-              <DashboardHeader onCreate={() => setShowCreate(true)} />
-              <MetricsGrid metrics={metrics} />
-
-              <section className="grid gap-6 lg:grid-cols-3">
-                <TourEditor
-                  steps={steps}
-                  defaultTourName={activeTour?.name}
-                  defaultBaseUrl={activeTour?.baseUrl}
-                  defaultThemeColor={activeTour?.color}
-                  defaultCtaCopy="Take a quick tour?"
+            <div className="grid gap-6 lg:grid-cols-3">
+              {/* Tour List */}
+              <div className="lg:col-span-1">
+                <ToursPanelNew
+                  tours={tours}
+                  onSelectTour={handleSelectTour}
+                  onDeleteTour={handleDeleteTour}
+                  selectedId={currentTour?.id}
                 />
-                <div className="space-y-4">
-                  <ToursPanel tours={tours} />
-                  <IntegrationSnippet
-                    widgetSrc={widgetSrc}
-                    tourId="tour_888"
-                    hasTour={!!activeTour}
+              </div>
+
+              {/* Tour Editor */}
+              {currentTour && (
+                <div className="lg:col-span-2">
+                  <TourEditorNew
+                    tour={currentTour}
+                    steps={steps}
+                    onSave={handleSaveTour}
+                    onAddStep={handleAddStep}
                   />
                 </div>
-              </section>
+              )}
+            </div>
+          )}
 
-              <AnalyticsSection
-                views={views}
-                completions={completions}
-                dropOff={dropOff}
-                recentEvents={recentEvents}
-              />
+          {/* Integration Help */}
+          {currentTour && steps.length >= 5 && (
+            <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-6">
+              <h3 className="text-lg font-semibold text-green-400 mb-4">Ready to Deploy</h3>
+              <p className="text-gray-300 mb-4">
+                Your tour is ready! Copy this script and add it to your website to start the tour:
+              </p>
+              <div className="bg-black/50 rounded-lg p-4 border border-white/10 font-mono text-sm overflow-x-auto">
+                <code className="text-green-400">
+                  {`<script src="${widgetSrc}" data-tour-id="${currentTour.id}"><\/script>`}
+                </code>
+              </div>
+              <p className="text-xs text-gray-400 mt-3">
+                Make sure {currentTour.allowed_domains.join(", ")} are added to your tour's allowed domains.
+              </p>
             </div>
           )}
         </div>
-
-        <CreateTourModal
-          open={showCreate}
-          onClose={() => setShowCreate(false)}
-          onSave={(tourData: { tour: Tour; steps: Step[] }) => {
-            setTours([tourData.tour]);
-            setSteps(tourData.steps);
-            setMetrics(mockMetrics);
-            setDropOff(mockDropOff);
-            setRecentEvents(mockEvents);
-            setViews(1200);
-            setCompletions(780);
-            setShowCreate(false);
-          }}
-        />
       </div>
     </ProtectedRoute>
   );

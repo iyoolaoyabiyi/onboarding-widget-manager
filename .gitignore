@@ -5,6 +5,7 @@ node_modules
 dist
 build
 .vercel
+.doc
 
 # Env & logs
 .env
@@ -20,3 +21,7 @@ pnpm-debug.log*
 .idea
 .vscode
 *.swp
+
+# Firebase
+**/serviceAccountKey.json
+apps/widget/backups/
