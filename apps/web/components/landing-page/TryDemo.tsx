@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { motion } from "framer-motion";
 import { Play, ArrowRight, Sparkles, Eye } from "lucide-react";
@@ -6,23 +6,28 @@ import { useState } from "react";
 
 export default function TryDemo() {
   const [currentStep, setCurrentStep] = useState(0);
-  
+
+  const navigateToDemo = () => {
+    window.location.href = "/demo";
+  };
+
   const demoSteps = [
     {
       title: "Welcome to your first tour!",
-      description: "Use interactive tooltips to guide users through key features.",
-      buttonText: "Next: Features"
+      description:
+        "Use interactive tooltips to guide users through key features.",
+      buttonText: "Next: Features",
     },
     {
       title: "Discover features",
       description: "Highlight important elements with beautiful animations.",
-      buttonText: "Next: Get Started"
+      buttonText: "Next: Get Started",
     },
     {
       title: "Ready to get started?",
       description: "Complete the tour to begin exploring your dashboard.",
-      buttonText: "Complete Tour"
-    }
+      buttonText: "Complete Tour",
+    },
   ];
 
   const nextStep = () => {
@@ -76,9 +81,11 @@ export default function TryDemo() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-800 bg-gray-900/50 mb-6"
           >
             <Play className="w-4 h-4 text-blue-400" />
-            <span className="text-sm font-medium text-gray-300">Interactive Demo</span>
+            <span className="text-sm font-medium text-gray-300">
+              Interactive Demo
+            </span>
           </motion.div>
-          
+
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -91,7 +98,7 @@ export default function TryDemo() {
               Try the demo yourself
             </span>
           </motion.h2>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -99,7 +106,8 @@ export default function TryDemo() {
             viewport={{ once: true }}
             className="text-lg text-gray-400 max-w-2xl mx-auto"
           >
-            Experience how users will navigate through smooth, guided onboarding steps.
+            Experience how users will navigate through smooth, guided onboarding
+            steps.
           </motion.p>
         </div>
 
@@ -133,7 +141,8 @@ export default function TryDemo() {
             <motion.div
               className="absolute inset-0 opacity-30"
               style={{
-                background: "linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent)",
+                background:
+                  "linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent)",
               }}
               animate={{
                 x: ["-100%", "200%"],
@@ -150,18 +159,24 @@ export default function TryDemo() {
             <div className="relative px-6 py-4 border-b border-gray-800 bg-gray-900/80">
               <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-gray-300">Live Demo Preview</span>
+                <span className="text-sm font-medium text-gray-300">
+                  Live Demo Preview
+                </span>
                 <div className="ml-auto flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     {demoSteps.map((_, index) => (
                       <motion.div
                         key={index}
                         className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                          index === currentStep ? 'bg-blue-500' : 'bg-gray-700'
+                          index === currentStep ? "bg-blue-500" : "bg-gray-700"
                         }`}
-                        animate={index === currentStep ? {
-                          scale: [1, 1.3, 1],
-                        } : {}}
+                        animate={
+                          index === currentStep
+                            ? {
+                                scale: [1, 1.3, 1],
+                              }
+                            : {}
+                        }
                         transition={{
                           duration: 1.5,
                           repeat: Infinity,
@@ -175,7 +190,7 @@ export default function TryDemo() {
                 </div>
               </div>
             </div>
-            
+
             {/* Demo Content */}
             <div className="relative p-8">
               <motion.div
@@ -200,7 +215,7 @@ export default function TryDemo() {
                       ease: "easeInOut",
                     }}
                   />
-                  
+
                   {/* Card */}
                   <div className="p-6 rounded-lg border border-gray-700 bg-gray-800/50 backdrop-blur-sm shadow-lg">
                     <div className="flex items-start gap-3">
@@ -228,7 +243,7 @@ export default function TryDemo() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Demo Controls */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-800/50">
                   <button
@@ -237,7 +252,7 @@ export default function TryDemo() {
                   >
                     Restart Demo
                   </button>
-                  
+
                   <motion.button
                     onClick={nextStep}
                     className="group inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20 relative overflow-hidden"
@@ -257,7 +272,9 @@ export default function TryDemo() {
                         repeatDelay: 1,
                       }}
                     />
-                    <span className="relative">{demoSteps[currentStep].buttonText}</span>
+                    <span className="relative">
+                      {demoSteps[currentStep].buttonText}
+                    </span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative" />
                   </motion.button>
                 </div>
@@ -277,7 +294,7 @@ export default function TryDemo() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={startDemo}
+            onClick={navigateToDemo}
             className="group inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/20 relative overflow-hidden"
           >
             {/* Animated shine effect */}
@@ -308,7 +325,13 @@ export default function TryDemo() {
           className="mt-12 pt-8 border-t border-gray-800/50 text-center"
         >
           <p className="text-sm text-gray-500">
-            Want to customize this demo? <a href="/sign-up" className="text-blue-400 hover:text-blue-300 transition-colors">Sign up for free →</a>
+            Want to customize this demo?{" "}
+            <a
+              href="/sign-up"
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Sign up for free →
+            </a>
           </p>
         </motion.div>
       </div>
