@@ -4,6 +4,11 @@ import { TooltipManager, TooltipPositioner } from '../ui/tooltip/tooltip';
 import { Analytics } from '../analytics/analytics';
 import { gsap } from 'gsap';
 
+type HistoryPatchedWindow = Window & {
+  __originalPushState?: History['pushState'];
+  __originalReplaceState?: History['replaceState'];
+};
+
 /**
  * Manages the tour state and step rendering
  */
@@ -14,6 +19,7 @@ export class TourRenderer {
   private resizeHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;
   private routeChangeHandler: (() => void) | null = null;
+  private lastPathname: string = '';
   private onFinish: () => void;
   private onCancel?: () => void;
 
@@ -35,6 +41,7 @@ export class TourRenderer {
     this.currentStepIndex = this.loadSavedStepIndex();
     this.onFinish = onFinish;
     this.onCancel = onCancel;
+    this.lastPathname = typeof window !== 'undefined' ? window.location.pathname : '';
   }
 
   renderStep(index: number): void {
@@ -181,6 +188,7 @@ export class TourRenderer {
   private setupRouteChangeListeners(): void {
     if (!this.routeChangeHandler) return;
 
+    const historyWindow = this.getHistoryWindow();
     // Listen for browser history changes (pushState, replaceState)
     window.addEventListener('popstate', this.routeChangeHandler);
     
@@ -188,28 +196,36 @@ export class TourRenderer {
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
     
-    history.pushState = (...args) => {
+    history.pushState = (...args: Parameters<History['pushState']>) => {
       originalPushState.apply(history, args);
       if (this.routeChangeHandler) this.routeChangeHandler();
     };
     
-    history.replaceState = (...args) => {
+    history.replaceState = (...args: Parameters<History['replaceState']>) => {
       originalReplaceState.apply(history, args);
       if (this.routeChangeHandler) this.routeChangeHandler();
     };
     
     // Store originals for cleanup
-    (window as any).__originalPushState = originalPushState;
-    (window as any).__originalReplaceState = originalReplaceState;
+    historyWindow.__originalPushState = originalPushState;
+    historyWindow.__originalReplaceState = originalReplaceState;
   }
 
   /**
    * Handle route change by closing the tour
    */
   private handleRouteChange(): void {
-    console.log('Route change detected, closing tour...');
-    Analytics.track('tour_closed_route_change', this.config.id);
-    this.skip();
+    // Check if we've actually navigated to a different path
+    const currentPathname = window.location.pathname;
+    
+    if (currentPathname !== this.lastPathname) {
+      console.log(`Route change detected from ${this.lastPathname} to ${currentPathname}, closing tour...`);
+      Analytics.track('tour_closed_route_change', this.config.id);
+      this.skip();
+    }
+    
+    // Update the last pathname
+    this.lastPathname = currentPathname;
   }
 
   private reposition(): void {
@@ -241,13 +257,14 @@ export class TourRenderer {
     }
     
     // Restore original history methods
-    if ((window as any).__originalPushState) {
-      history.pushState = (window as any).__originalPushState;
-      delete (window as any).__originalPushState;
+    const historyWindow = this.getHistoryWindow();
+    if (historyWindow.__originalPushState) {
+      history.pushState = historyWindow.__originalPushState;
+      delete historyWindow.__originalPushState;
     }
-    if ((window as any).__originalReplaceState) {
-      history.replaceState = (window as any).__originalReplaceState;
-      delete (window as any).__originalReplaceState;
+    if (historyWindow.__originalReplaceState) {
+      history.replaceState = historyWindow.__originalReplaceState;
+      delete historyWindow.__originalReplaceState;
     }
 
     document.documentElement.style.removeProperty('--tour-theme');
@@ -293,5 +310,9 @@ export class TourRenderer {
 
   getCurrentStep(): TourStep | null {
     return this.config.steps[this.currentStepIndex] || null;
+  }
+
+  private getHistoryWindow(): HistoryPatchedWindow {
+    return window as HistoryPatchedWindow;
   }
 }

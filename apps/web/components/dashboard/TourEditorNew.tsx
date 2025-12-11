@@ -52,7 +52,11 @@ export default function TourEditor({ tour, steps, onSaveConfig, onSaveDomains, o
     // Reset save states when switching tours
     setConfigSaved(false);
     setDomainSaved(false);
-  }, [tour?.id]);
+  }, 
+  [
+    tour?.id, tour?.name, tour?.description, tour?.theme, tour?.avatar_enabled, 
+    tour?.allowed_domains, tour?.status
+  ]);
 
   const handleSaveConfig = async () => {
     if (!formData.name.trim()) {

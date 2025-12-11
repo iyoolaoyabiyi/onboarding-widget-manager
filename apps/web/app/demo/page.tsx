@@ -104,17 +104,15 @@ export default function DemoPage() {
   }, []);
 
   useEffect(() => {
-    if (tourReady && tourConfig && tourStatus === "idle" && window.OnboardingTour?.init) {
-      clearStoredProgress();
-      const autoStart = async () => {
-        if (window.OnboardingTour?.init) {
-          await window.OnboardingTour.init(tourConfig);
-          setTourStatus("running");
-          setLastAction("Auto-started on page load");
-        }
-      };
-      autoStart();
-    }
+    const initTour = async () => {
+      if (tourReady && tourConfig && tourStatus === "idle" && window.OnboardingTour?.init) {
+        clearStoredProgress();
+        await window.OnboardingTour.init(tourConfig);
+        setTourStatus("running");
+        setLastAction("Auto-started on page load");
+      }
+    };
+    initTour();
   }, [tourReady, tourConfig, tourStatus]);
 
   const clearStoredProgress = () => {
