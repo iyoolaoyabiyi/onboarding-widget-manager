@@ -103,6 +103,18 @@ export default function DemoPage() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const initTour = async () => {
+      if (tourReady && tourConfig && tourStatus === "idle" && window.OnboardingTour?.init) {
+        clearStoredProgress();
+        await window.OnboardingTour.init(tourConfig);
+        setTourStatus("running");
+        setLastAction("Auto-started on page load");
+      }
+    };
+    initTour();
+  }, [tourReady, tourConfig, tourStatus]);
+
   const clearStoredProgress = () => {
     if (typeof window === "undefined") return;
 

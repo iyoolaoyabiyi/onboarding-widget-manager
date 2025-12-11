@@ -4,6 +4,11 @@ import { TooltipManager, TooltipPositioner } from '../ui/tooltip/tooltip';
 import { Analytics } from '../analytics/analytics';
 import { gsap } from 'gsap';
 
+type HistoryPatchedWindow = Window & {
+  __originalPushState?: History['pushState'];
+  __originalReplaceState?: History['replaceState'];
+};
+
 /**
  * Manages the tour state and step rendering
  */
@@ -13,6 +18,8 @@ export class TourRenderer {
   private highlightedElement: HTMLElement | null = null;
   private resizeHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;
+  private routeChangeHandler: (() => void) | null = null;
+  private lastPathname: string = '';
   private onFinish: () => void;
   private onCancel?: () => void;
 
@@ -34,6 +41,7 @@ export class TourRenderer {
     this.currentStepIndex = this.loadSavedStepIndex();
     this.onFinish = onFinish;
     this.onCancel = onCancel;
+    this.lastPathname = typeof window !== 'undefined' ? window.location.pathname : '';
   }
 
   renderStep(index: number): void {
@@ -161,13 +169,63 @@ export class TourRenderer {
   setupEventListeners(): void {
     this.resizeHandler = () => this.reposition();
     this.scrollHandler = () => this.reposition();
+    this.routeChangeHandler = () => this.handleRouteChange();
 
     window.addEventListener('resize', this.resizeHandler);
     window.addEventListener('scroll', this.scrollHandler);
+    
+    // Listen for route changes in SPAs
+    this.setupRouteChangeListeners();
   }
 
   getTotalSteps(): number {
     return this.config.steps.length;
+  }
+
+  /**
+   * Set up listeners for route changes in SPAs
+   */
+  private setupRouteChangeListeners(): void {
+    if (!this.routeChangeHandler) return;
+
+    const historyWindow = this.getHistoryWindow();
+    // Listen for browser history changes (pushState, replaceState)
+    window.addEventListener('popstate', this.routeChangeHandler);
+    
+    // Intercept pushState and replaceState
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+    
+    history.pushState = (...args: Parameters<History['pushState']>) => {
+      originalPushState.apply(history, args);
+      if (this.routeChangeHandler) this.routeChangeHandler();
+    };
+    
+    history.replaceState = (...args: Parameters<History['replaceState']>) => {
+      originalReplaceState.apply(history, args);
+      if (this.routeChangeHandler) this.routeChangeHandler();
+    };
+    
+    // Store originals for cleanup
+    historyWindow.__originalPushState = originalPushState;
+    historyWindow.__originalReplaceState = originalReplaceState;
+  }
+
+  /**
+   * Handle route change by closing the tour
+   */
+  private handleRouteChange(): void {
+    // Check if we've actually navigated to a different path
+    const currentPathname = window.location.pathname;
+    
+    if (currentPathname !== this.lastPathname) {
+      console.log(`Route change detected from ${this.lastPathname} to ${currentPathname}, closing tour...`);
+      Analytics.track('tour_closed_route_change', this.config.id);
+      this.skip();
+    }
+    
+    // Update the last pathname
+    this.lastPathname = currentPathname;
   }
 
   private reposition(): void {
@@ -192,6 +250,21 @@ export class TourRenderer {
     if (this.scrollHandler) {
       window.removeEventListener('scroll', this.scrollHandler);
       this.scrollHandler = null;
+    }
+    if (this.routeChangeHandler) {
+      window.removeEventListener('popstate', this.routeChangeHandler);
+      this.routeChangeHandler = null;
+    }
+    
+    // Restore original history methods
+    const historyWindow = this.getHistoryWindow();
+    if (historyWindow.__originalPushState) {
+      history.pushState = historyWindow.__originalPushState;
+      delete historyWindow.__originalPushState;
+    }
+    if (historyWindow.__originalReplaceState) {
+      history.replaceState = historyWindow.__originalReplaceState;
+      delete historyWindow.__originalReplaceState;
     }
 
     document.documentElement.style.removeProperty('--tour-theme');
@@ -237,5 +310,9 @@ export class TourRenderer {
 
   getCurrentStep(): TourStep | null {
     return this.config.steps[this.currentStepIndex] || null;
+  }
+
+  private getHistoryWindow(): HistoryPatchedWindow {
+    return window as HistoryPatchedWindow;
   }
 }

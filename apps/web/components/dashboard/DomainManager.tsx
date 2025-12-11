@@ -5,9 +5,12 @@ import { useState } from 'react';
 interface DomainManagerProps {
   domains: string[];
   onDomainsChange: (domains: string[]) => void;
+  onSave?: () => Promise<void>;
+  isSaving?: boolean;
+  isSaved?: boolean;
 }
 
-export default function DomainManager({ domains, onDomainsChange }: DomainManagerProps) {
+export default function DomainManager({ domains, onDomainsChange, onSave, isSaving = false, isSaved = false }: DomainManagerProps) {
   const [newDomain, setNewDomain] = useState('');
   const [error, setError] = useState('');
 
@@ -63,12 +66,31 @@ export default function DomainManager({ domains, onDomainsChange }: DomainManage
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="font-semibold mb-3">Allowed Domains</h3>
-        <p className="text-sm text-gray-400 mb-4">
-          Restrict where this tour can be embedded. Supports wildcards (*.example.com) and localhost.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <h3 className="font-semibold mb-2">Allowed Domains</h3>
+          <p className="text-sm text-gray-400">
+            Restrict where this tour can be embedded. Supports wildcards (*.example.com) and localhost.
+          </p>
+        </div>
+        {onSave && (
+          <button
+            onClick={onSave}
+            disabled={isSaving}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ml-4 ${
+              isSaved
+                ? 'bg-green-500 text-black'
+                : isSaving
+                  ? 'bg-white/50 text-black/50'
+                  : 'bg-white text-black hover:opacity-90'
+            }`}
+          >
+            {isSaved ? '✓ Saved' : isSaving ? 'Saving...' : 'Save'}
+          </button>
+        )}
+      </div>
 
+      <div>
         <div className="flex gap-2 mb-4">
           <input
             type="text"
