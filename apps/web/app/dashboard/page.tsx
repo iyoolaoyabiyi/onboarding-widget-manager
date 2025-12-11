@@ -118,13 +118,13 @@ export default function Dashboard() {
     }
   };
 
-  const handleSaveTour = async (updates: Partial<Tour>) => {
+  const handleSaveConfig = async (updates: Partial<Tour>) => {
     if (!currentTour) {
       throw new Error("No tour selected");
     }
 
     try {
-      // Convert Step[] to Firestore TourStep[] format
+      // Convert Step[] to Firestore TourStep[] format (keeping existing steps)
       const convertedSteps = steps.map((step) => ({
         id: `${currentTour.id}_step_${step.order}`,
         tour_id: currentTour.id,
@@ -139,13 +139,12 @@ export default function Dashboard() {
         updated_at: new Date().toISOString(),
       }));
 
-      // Prepare data for Firestore format
+      // Prepare data for Firestore format (configuration only)
       const updateData = {
         name: updates.name,
         description: updates.description,
         theme: updates.theme,
         avatar_enabled: updates.avatar_enabled,
-        allowed_domains: updates.allowed_domains,
         status: updates.status,
         steps: convertedSteps,
         updated_at: new Date().toISOString(),
@@ -162,9 +161,56 @@ export default function Dashboard() {
 
       setCurrentTour(updated);
       setTours(tours.map((t) => (t.id === currentTour.id ? updated : t)));
-      toast.success("Tour saved successfully");
+      toast.success("Configuration saved successfully");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to save tour";
+      const message = err instanceof Error ? err.message : "Failed to save configuration";
+      toast.error(message);
+      throw new Error(message);
+    }
+  };
+
+  const handleSaveDomains = async (domains: string[]) => {
+    if (!currentTour) {
+      throw new Error("No tour selected");
+    }
+
+    try {
+      // Convert Step[] to Firestore TourStep[] format (keeping existing steps)
+      const convertedSteps = steps.map((step) => ({
+        id: `${currentTour.id}_step_${step.order}`,
+        tour_id: currentTour.id,
+        order: step.order,
+        target_element: step.target,
+        position: step.position as 'top' | 'bottom' | 'left' | 'right' | 'center',
+        title: step.text,
+        content: step.content || step.text,
+        ...(step.cta_text && { cta_text: step.cta_text }),
+        ...(step.cta_url && { cta_url: step.cta_url }),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      // Prepare data for Firestore format (domains only)
+      const updateData = {
+        allowed_domains: domains,
+        steps: convertedSteps,
+        updated_at: new Date().toISOString(),
+      };
+
+      await FirestoreService.updateTour(currentTour.id, updateData);
+
+      // Update local state
+      const updated: Tour = {
+        ...currentTour,
+        allowed_domains: domains,
+        updated: new Date().toLocaleDateString(),
+      };
+
+      setCurrentTour(updated);
+      setTours(tours.map((t) => (t.id === currentTour.id ? updated : t)));
+      toast.success("Allowed domains saved successfully");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to save domains";
       toast.error(message);
       throw new Error(message);
     }
@@ -350,7 +396,8 @@ export default function Dashboard() {
                   <TourEditorNew
                     tour={currentTour}
                     steps={steps}
-                    onSave={handleSaveTour}
+                    onSaveConfig={handleSaveConfig}
+                    onSaveDomains={handleSaveDomains}
                     onAddStep={handleAddStep}
                     onEditStep={handleEditStep}
                     onDeleteStep={handleDeleteStep}

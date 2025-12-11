@@ -113,7 +113,6 @@ window.OnboardingTour.stop();       // Stop and cleanup
 - Responsive design (desktop and mobile)
 - Element highlighting with overlay
 - Positioning options (top, bottom, left, right, center)
-- Lightweight bundle (11KB gzipped)
 
 ## Project Structure
 

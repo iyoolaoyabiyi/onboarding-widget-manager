@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Step, Tour } from './types';
 import DomainManager from './DomainManager';
 
@@ -17,13 +17,14 @@ type ThemeName = keyof typeof THEMES;
 interface TourEditorProps {
   tour?: Tour | null;
   steps: Step[];
-  onSave: (tour: Partial<Tour>) => Promise<void>;
+  onSaveConfig: (tour: Partial<Tour>) => Promise<void>;
+  onSaveDomains: (domains: string[]) => Promise<void>;
   onAddStep: () => void;
   onEditStep: (order: number) => void;
   onDeleteStep: (order: number) => void;
 }
 
-export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep, onDeleteStep }: TourEditorProps) {
+export default function TourEditor({ tour, steps, onSaveConfig, onSaveDomains, onAddStep, onEditStep, onDeleteStep }: TourEditorProps) {
   const [formData, setFormData] = useState({
     name: tour?.name || '',
     description: tour?.description || '',
@@ -33,36 +34,69 @@ export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep,
     status: tour?.status || 'draft',
   });
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [configSaving, setConfigSaving] = useState(false);
+  const [configSaved, setConfigSaved] = useState(false);
+  const [domainSaving, setDomainSaving] = useState(false);
+  const [domainSaved, setDomainSaved] = useState(false);
 
-  const handleSave = async () => {
+  // Sync form data when tour changes
+  useEffect(() => {
+    setFormData({
+      name: tour?.name || '',
+      description: tour?.description || '',
+      theme: (tour?.theme as ThemeName) || 'blue',
+      avatar_enabled: tour?.avatar_enabled || false,
+      allowed_domains: tour?.allowed_domains || [],
+      status: tour?.status || 'draft',
+    });
+    // Reset save states when switching tours
+    setConfigSaved(false);
+    setDomainSaved(false);
+  }, 
+  [
+    tour?.id, tour?.name, tour?.description, tour?.theme, tour?.avatar_enabled, 
+    tour?.allowed_domains, tour?.status
+  ]);
+
+  const handleSaveConfig = async () => {
     if (!formData.name.trim()) {
       alert('Tour name is required');
       return;
     }
 
+    setConfigSaving(true);
+    try {
+      await onSaveConfig({
+        name: formData.name,
+        description: formData.description,
+        theme: formData.theme,
+        avatar_enabled: formData.avatar_enabled,
+        status: formData.status,
+      });
+      setConfigSaved(true);
+      setTimeout(() => setConfigSaved(false), 2000);
+    } catch (error) {
+      alert('Failed to save configuration: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setConfigSaving(false);
+    }
+  };
+
+  const handleSaveDomains = async () => {
     if (formData.allowed_domains.length === 0) {
       alert('At least one domain is required');
       return;
     }
 
-    setIsSaving(true);
+    setDomainSaving(true);
     try {
-      await onSave({
-        name: formData.name,
-        description: formData.description,
-        theme: formData.theme,
-        avatar_enabled: formData.avatar_enabled,
-        allowed_domains: formData.allowed_domains,
-        status: formData.status,
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      await onSaveDomains(formData.allowed_domains);
+      setDomainSaved(true);
+      setTimeout(() => setDomainSaved(false), 2000);
     } catch (error) {
-      alert('Failed to save tour: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert('Failed to save domains: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
-      setIsSaving(false);
+      setDomainSaving(false);
     }
   };
 
@@ -74,11 +108,26 @@ export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep,
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">Tour Configuration</h2>
-            <p className="text-gray-400 text-sm">Set up your tour properties and security settings.</p>
+            <p className="text-gray-400 text-sm">Set up your tour properties and settings.</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs border ${hasSteps ? 'bg-green-500/20 border-green-500/50 text-green-300' : 'bg-white/5 border-white/10'}`}>
-            {steps.length}/5 steps
-          </span>
+          <div className="flex items-center gap-3">
+            <span className={`px-3 py-1 rounded-full text-xs border ${hasSteps ? 'bg-green-500/20 border-green-500/50 text-green-300' : 'bg-white/5 border-white/10'}`}>
+              {steps.length}/5 steps
+            </span>
+            <button
+              onClick={handleSaveConfig}
+              disabled={configSaving}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                configSaved
+                  ? 'bg-green-500 text-black'
+                  : configSaving
+                    ? 'bg-white/50 text-black/50'
+                    : 'bg-white text-black hover:opacity-90'
+              }`}
+            >
+              {configSaved ? '✓ Saved' : configSaving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -122,7 +171,7 @@ export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep,
           </label>
 
           {/* Theme & Avatar */}
-          <div className="grid md:grid-cols-2 gap-4" id='other-tour-settings'>
+          <div className="space-y-4" id='other-tour-settings'>
             <label className="flex flex-col gap-2">
               <span className="text-sm text-gray-300">Theme</span>
               <div className="flex items-center gap-3">
@@ -147,15 +196,22 @@ export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep,
               </div>
             </label>
 
-            <label className="flex items-center gap-3 mt-auto">
-              <input
-                type="checkbox"
-                checked={formData.avatar_enabled}
-                onChange={(e) => setFormData({ ...formData, avatar_enabled: e.target.checked })}
-                className="w-4 h-4 rounded"
-              />
+            {/* Avatar Toggle */}
+            <div className="flex items-center justify-between bg-black/30 border border-white/10 rounded-lg px-4 py-3">
               <span className="text-sm text-gray-300">Show avatar assistant</span>
-            </label>
+              <button
+                onClick={() => setFormData({ ...formData, avatar_enabled: !formData.avatar_enabled })}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                  formData.avatar_enabled ? 'bg-blue-600' : 'bg-white/20'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    formData.avatar_enabled ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -165,6 +221,9 @@ export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep,
         <DomainManager
           domains={formData.allowed_domains}
           onDomainsChange={(domains) => setFormData({ ...formData, allowed_domains: domains })}
+          onSave={handleSaveDomains}
+          isSaving={domainSaving}
+          isSaved={domainSaved}
         />
       </div>
 
@@ -217,33 +276,12 @@ export default function TourEditor({ tour, steps, onSave, onAddStep, onEditStep,
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-6 text-center text-sm text-gray-400">
-            No steps yet. Add at least 5 steps to make your tour live.
+            No steps yet. Add at least 5 steps before deploying your tour.
           </div>
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 sticky bottom-6">
-        <button
-          onClick={handleSave}
-          disabled={isSaving || !hasSteps}
-          className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-            saved
-              ? 'bg-green-500 text-black'
-              : isSaving
-                ? 'bg-white/50 text-black/50'
-                : 'bg-white text-black hover:opacity-90'
-          } ${!hasSteps ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {saved ? '✓ Saved' : isSaving ? 'Saving...' : 'Save Tour'}
-        </button>
 
-        {hasSteps && formData.status === 'active' && (
-          <button className="px-6 py-3 rounded-lg border border-white/20 font-semibold hover:bg-white/5">
-            Get Embed Code
-          </button>
-        )}
-      </div>
     </div>
   );
 }

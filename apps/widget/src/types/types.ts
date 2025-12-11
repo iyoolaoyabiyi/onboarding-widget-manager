@@ -66,7 +66,8 @@ export type AnalyticsAction = 'tour_started'
                             | 'step_completed' 
                             | 'step_skipped' 
                             | 'tour_completed' 
-                            | 'tour_abandoned';
+                            | 'tour_abandoned'
+                            | 'tour_closed_route_change';
 
 export interface AnalyticsEvent {
   event_id: string;
