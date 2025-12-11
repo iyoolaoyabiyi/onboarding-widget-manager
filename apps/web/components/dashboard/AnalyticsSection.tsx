@@ -122,10 +122,6 @@ export default function AnalyticsSection({ tourId }: Props) {
           <h3 className="text-lg font-semibold">Analytics</h3>
           <p className="text-sm text-gray-400">Tour engagement and conversion metrics over the last 7 days.</p>
         </div>
-        <div className="flex gap-2">
-          <button className="px-3 py-2 rounded-lg border border-white/20 text-sm hover:bg-white/5">Last 7 days</button>
-          <button className="px-3 py-2 rounded-lg border border-white/20 text-sm hover:bg-white/5">Export CSV</button>
-        </div>
       </div>
 
       {loading && (
