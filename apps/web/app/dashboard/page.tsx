@@ -10,6 +10,7 @@ import StepModal from "@/components/dashboard/StepModal";
 import AnalyticsSection from "@/components/dashboard/AnalyticsSection";
 import { FirestoreService } from "@/lib/firestore";
 import type { Tour, Step } from "@/components/dashboard/types";
+import { AnalyticsQueryService } from "@/lib/analyticsQuery";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
@@ -43,26 +44,41 @@ export default function Dashboard() {
         // Only load tours owned by the current user
         const userTours = await FirestoreService.getUserTours(user.uid);
 
-        // Convert Firestore format to dashboard format
-        const convertedTours: Tour[] = userTours.map((tour) => ({
-          id: tour.id,
-          name: tour.name,
-          description: tour.description,
-          allowed_domains: tour.allowed_domains || [],
-          steps: tour.steps?.length || 0,
-          completion: tour.completion_rate || 0,
-          status: tour.status,
-          updated: new Date(tour.updated_at).toLocaleDateString(),
-          theme: tour.theme,
-          owner_id: tour.owner_id,
-          avatar_enabled: tour.avatar_enabled,
-          min_steps: tour.min_steps || 5,
-          total_views: tour.total_views || 0,
-          total_completions: tour.total_completions || 0,
-          completion_rate: tour.completion_rate || 0,
-          created_at: tour.created_at,
-          updated_at: tour.updated_at,
-        }));
+        // Convert Firestore format to dashboard format & enrich with live metrics
+        const convertedTours: Tour[] = await Promise.all(
+          userTours.map(async (tour) => {
+            let metrics;
+            try {
+              metrics = await AnalyticsQueryService.getTourMetrics(tour.id, 30);
+            } catch (error) {
+              console.warn("Failed to load metrics for tour", tour.id, error);
+            }
+
+            const completionRate = metrics?.completionRate ?? tour.completion_rate ?? 0;
+            const totalViews = metrics?.totalViews ?? tour.total_views ?? 0;
+            const totalCompletions = metrics?.totalCompletions ?? tour.total_completions ?? 0;
+
+            return {
+              id: tour.id,
+              name: tour.name,
+              description: tour.description,
+              allowed_domains: tour.allowed_domains || [],
+              steps: tour.steps?.length || 0,
+              completion: completionRate,
+              status: tour.status,
+              updated: new Date(tour.updated_at).toLocaleDateString(),
+              theme: tour.theme,
+              owner_id: tour.owner_id,
+              avatar_enabled: tour.avatar_enabled,
+              min_steps: tour.min_steps || 5,
+              total_views: totalViews,
+              total_completions: totalCompletions,
+              completion_rate: completionRate,
+              created_at: tour.created_at,
+              updated_at: tour.updated_at,
+            };
+          })
+        );
 
         setTours(convertedTours);
 

@@ -19,13 +19,6 @@ interface AnalyticsMetrics {
   visitorCount: number;
 }
 
-interface DropOffCalculation {
-  [step: number]: {
-    viewed: number;
-    completed: number;
-  };
-}
-
 /**
  * Analytics query service for dashboard
  * Handles complex analytics queries and aggregations
@@ -147,46 +140,41 @@ export class AnalyticsQueryService {
   ): DropOffItem[] {
     if (sessions.length === 0) return [];
 
-    const dropOff: DropOffCalculation = {};
+    const stepViews: Record<number, Set<string>> = {};
 
-    // Track which steps were viewed/completed in each session
-    sessions.forEach(() => {
-      const sessionEvents = events.filter((e) => e.action === 'step_viewed' || e.action === 'step_completed');
-
-      sessionEvents.forEach((event) => {
-        if (!event.step_id) return;
-
-        const stepNum = parseInt(event.step_id.split('_').pop() || '0', 10);
-        if (!dropOff[stepNum]) {
-          dropOff[stepNum] = { viewed: 0, completed: 0 };
+    // Track which sessions reached each step (deduped per session to avoid over-counting)
+    events
+      .filter((event) => (event.action === 'step_viewed' || event.action === 'step_completed') && event.step_id)
+      .forEach((event) => {
+        const stepNum = parseInt(event.step_id!.split('_').pop() || '0', 10);
+        if (!stepViews[stepNum]) {
+          stepViews[stepNum] = new Set<string>();
         }
-
-        if (event.action === 'step_viewed') {
-          dropOff[stepNum].viewed += 1;
-        } else if (event.action === 'step_completed') {
-          dropOff[stepNum].completed += 1;
+        if (event.session_id) {
+          stepViews[stepNum].add(event.session_id);
         }
       });
-    });
 
-    // Calculate drop-off percentage for each step
+    const sortedSteps = Object.keys(stepViews)
+      .map(Number)
+      .sort((a, b) => a - b);
+
     const result: DropOffItem[] = [];
     let previousViewed = sessions.length;
 
-    Object.keys(dropOff)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .forEach((step) => {
-        const viewed = dropOff[step].viewed;
-        const dropOffPercent = previousViewed > 0 ? ((previousViewed - viewed) / previousViewed) * 100 : 0;
+    sortedSteps.forEach((step) => {
+      const viewed = stepViews[step]?.size ?? 0;
+      const dropOffPercent = previousViewed > 0 ? ((previousViewed - viewed) / previousViewed) * 100 : 0;
+      const clampedPercent = Math.min(100, Math.max(0, Math.round(dropOffPercent)));
 
-        result.push({
-          step,
-          percent: Math.round(dropOffPercent),
-        });
-
-        previousViewed = viewed;
+      result.push({
+        step,
+        percent: clampedPercent,
       });
+
+      // Ensure the base for the next step never increases to avoid negative drop-off
+      previousViewed = Math.min(previousViewed, viewed);
+    });
 
     return result;
   }
