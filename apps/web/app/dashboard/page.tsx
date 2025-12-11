@@ -12,6 +12,7 @@ import { FirestoreService } from "@/lib/firestore";
 import type { Tour, Step } from "@/components/dashboard/types";
 import { AnalyticsQueryService } from "@/lib/analyticsQuery";
 import { useAuth } from "@/hooks/useAuth";
+import { Copy, Check } from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function Dashboard() {
 
   const widgetSrc =
     process.env.NEXT_PUBLIC_WIDGET_URL ?? "http://localhost:5173/widget.js";
+  const [copied, setCopied] = useState(false);
 
   // Load tours from Firestore
   useEffect(() => {
@@ -431,10 +433,39 @@ export default function Dashboard() {
               <p className="text-gray-300 mb-4">
                 Your tour is ready! Copy this script and add it to your website to start the tour:
               </p>
-              <div className="bg-black/50 rounded-lg p-4 border border-white/10 font-mono text-sm overflow-x-auto">
-                <code className="text-green-400">
+              <div className="bg-black/50 rounded-lg p-4 border border-white/10 font-mono text-sm overflow-x-auto flex items-center justify-between gap-3">
+                <code className="text-green-400 break-all">
                   {`<script src="${widgetSrc}" data-tour-id="${currentTour.id}"><\/script>`}
                 </code>
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        `<script src="${widgetSrc}" data-tour-id="${currentTour.id}"></script>`
+                      );
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                      toast.success("Widget snippet copied");
+                    } catch {
+                      toast.error("Failed to copy snippet");
+                    }
+                  }}
+                  className="shrink-0 inline-flex items-center gap-2 rounded-md border border-white/20 px-3 py-2 text-xs hover:bg-white/10"
+                  title="Copy snippet"
+                  aria-label="Copy widget snippet"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
               </div>
               <p className="text-xs text-gray-400 mt-3">
                 Make sure {currentTour.allowed_domains.join(", ")} are added to your tour&apos;s allowed domains.
@@ -444,7 +475,7 @@ export default function Dashboard() {
 
           {/* Analytics Section */}
           {currentTour && (
-            <AnalyticsSection tourId={currentTour.id} />
+            <AnalyticsSection key={currentTour.id} tourId={currentTour.id} />
           )}
         </div>
       </div>

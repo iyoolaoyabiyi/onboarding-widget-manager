@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 import { AnalyticsQueryService } from '@/lib/analyticsQuery';
+import { FirestoreService } from '@/lib/firestore';
 import { DropOffItem, EventEntry } from "./types";
 
 type Props = {
   tourId: string;
 };
+
+const Skeleton = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse rounded-md bg-white/10 ${className ?? ''}`} />
+);
 
 const formatDuration = (ms: number) => {
   if (!ms) return '—';
@@ -25,45 +30,72 @@ interface AnalyticsState {
   loading: boolean;
 }
 
+const initialAnalyticsState: AnalyticsState = {
+  views: 0,
+  completions: 0,
+  completionRate: 0,
+  averageDuration: 0,
+  dropOff: [],
+  recentEvents: [],
+  loading: true,
+};
+
 export default function AnalyticsSection({ tourId }: Props) {
-  const [analytics, setAnalytics] = useState<AnalyticsState>({
-    views: 0,
-    completions: 0,
-    completionRate: 0,
-    averageDuration: 0,
-    dropOff: [],
-    recentEvents: [],
-    loading: true,
-  });
+  const [analytics, setAnalytics] = useState<AnalyticsState>(initialAnalyticsState);
 
   useEffect(() => {
+    let isCurrent = true;
+
     const loadAnalytics = async () => {
       try {
-        const metrics = await AnalyticsQueryService.getTourMetrics(tourId, 7);
-        const recentEvents = await AnalyticsQueryService.getRecentEvents(tourId, 20);
+        const [metrics, recentEvents, tour] = await Promise.all([
+          AnalyticsQueryService.getTourMetrics(tourId, 7),
+          AnalyticsQueryService.getRecentEvents(tourId, 20),
+          FirestoreService.getTour(tourId),
+        ]);
 
-        setAnalytics({
-          views: metrics.totalViews,
-          completions: metrics.totalCompletions,
-          completionRate: metrics.completionRate,
-          averageDuration: metrics.averageDuration,
-          dropOff: metrics.dropOffByStep,
-          recentEvents: recentEvents.map((event) => ({
-            tour_id: event.tour_id,
-            step: parseInt(event.step_id?.split('_').pop() || '0', 10),
-            action: event.action,
-          })),
-          loading: false,
-        });
+        const titleMap =
+          tour?.steps?.reduce((acc, step) => {
+            if (typeof step.order === 'number') {
+              acc[step.order] = step.title || step.content || `Step ${step.order}`;
+            }
+            return acc;
+          }, {} as Record<number, string>) || {};
+
+        if (isCurrent) {
+          setAnalytics({
+            views: metrics.totalViews,
+            completions: metrics.totalCompletions,
+            completionRate: metrics.completionRate,
+            averageDuration: metrics.averageDuration,
+            dropOff: metrics.dropOffByStep,
+            recentEvents: recentEvents.map((event) => {
+              const stepNum = parseInt(event.step_id?.split('_').pop() || '0', 10);
+              return {
+                tour_id: event.tour_id,
+                step: Number.isFinite(stepNum) ? stepNum : 0,
+                action: event.action,
+                step_title: titleMap[stepNum],
+              };
+            }),
+            loading: false,
+          });
+        }
       } catch (error) {
         console.error('Failed to load analytics:', error);
-        setAnalytics((prev) => ({ ...prev, loading: false }));
+        if (isCurrent) {
+          setAnalytics((prev) => ({ ...prev, loading: false }));
+        }
       }
     };
 
     if (tourId) {
       loadAnalytics();
     }
+
+    return () => {
+      isCurrent = false;
+    };
   }, [tourId]);
 
   const { views, completions, completionRate, dropOff, recentEvents, loading } = analytics;
@@ -90,15 +122,40 @@ export default function AnalyticsSection({ tourId }: Props) {
           <h3 className="text-lg font-semibold">Analytics</h3>
           <p className="text-sm text-gray-400">Tour engagement and conversion metrics over the last 7 days.</p>
         </div>
-        <div className="flex gap-2">
-          <button className="px-3 py-2 rounded-lg border border-white/20 text-sm hover:bg-white/5">Last 7 days</button>
-          <button className="px-3 py-2 rounded-lg border border-white/20 text-sm hover:bg-white/5">Export CSV</button>
-        </div>
       </div>
 
       {loading && (
-        <div className="rounded-xl border border-dashed border-white/15 bg-black/20 p-4 text-sm text-gray-400">
-          Loading analytics...
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, idx) => (
+              <div key={idx} className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-3">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-2 w-full" />
+              </div>
+            ))}
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-3">
+              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-2 w-full" />
+              <Skeleton className="h-2 w-5/6" />
+              <Skeleton className="h-2 w-4/6" />
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-3">
+              <Skeleton className="h-3 w-28" />
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[...Array(4)].map((_, idx) => (
+                  <div key={idx} className="rounded-lg border border-white/10 bg-white/5 p-3 space-y-2">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-2 w-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -177,7 +234,9 @@ export default function AnalyticsSection({ tourId }: Props) {
                     >
                       <div className="flex items-center justify-between">
                         <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide">{event.action}</span>
-                        <span className="text-gray-400">Step {event.step}</span>
+                        <span className="text-gray-400 truncate max-w-[120px]" title={event.step_title || `Step ${event.step}`}>
+                          {event.step_title || `Step ${event.step}`}
+                        </span>
                       </div>
                       <p className="mt-2 font-mono text-[11px] text-gray-200 break-all">
                         {event.tour_id.substring(0, 8)}…

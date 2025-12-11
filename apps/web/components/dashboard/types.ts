@@ -43,6 +43,7 @@ export type EventEntry = {
   tour_id: string;
   step: number;
   action: string;
+  step_title?: string;
 };
 
 export type AnalyticsEvent = {
@@ -75,5 +76,4 @@ export type AnalyticsSession = {
   visitor_id?: string;
   updated_at?: string;
 };
-
 

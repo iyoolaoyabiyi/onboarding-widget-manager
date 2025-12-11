@@ -19,6 +19,10 @@ interface ToursPanelProps {
 
 export default function ToursPanel({ tours, onSelectTour, onDeleteTour, selectedId }: ToursPanelProps) {
   const hasTours = tours.length > 0;
+  const formatPercent = (value?: number) => {
+    const safe = Number.isFinite(value) ? Math.max(0, Math.min(100, value as number)) : 0;
+    return safe.toFixed(2);
+  };
 
   const handleDelete = (e: React.MouseEvent, tourId: string) => {
     e.stopPropagation(); // Prevent tour selection when clicking delete
@@ -80,7 +84,7 @@ export default function ToursPanel({ tours, onSelectTour, onDeleteTour, selected
                 </div>
               </div>
               <div className="text-xs text-gray-400">
-                <span>{tour.steps} steps</span> • <span>{tour.completion_rate}% completion</span>
+                <span>{tour.steps} steps</span> • <span>{formatPercent(tour.completion_rate)}% completion</span>
               </div>
             </div>
           ))}
